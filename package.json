@@ -1,0 +1,21 @@
+{
+  "name": "craftingdatabase",
+  "version": "0.0.1",
+  "description": "Database for crafting",
+  "license": "MIT",
+  "author": "johvik",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/johvik/CraftingDatabase"
+  },
+  "scripts": {
+    "build": "tsc && tslint -c tslint.json -p tsconfig.json",
+    "test": "jest --coverage --verbose"
+  },
+  "devDependencies": {
+    "jest": "^23.5.0",
+    "ts-jest": "^23.1.4",
+    "tslint": "^5.11.0",
+    "typescript": "^3.0.3"
+  }
+}
