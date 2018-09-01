@@ -119,4 +119,9 @@ describe("getRecipe", () => {
         expect.assertions(1);
         await expect(getRecipe(269461)).rejects.toEqual("Skipping REUSE ME");
     });
+
+    it("should skip REUSE ME (DNT)", async () => {
+        expect.assertions(1);
+        await expect(getRecipe(255106)).rejects.toEqual("Skipping REUSE ME");
+    });
 });
