@@ -21,6 +21,46 @@ describe("parseRecipesPage", () => {
         expect(result.spellIds[193]).toEqual(272230);
         expect(result.next).toEqual(false);
     });
+
+    it("should not find the main div", async () => {
+        const dom = new JSDOM("");
+        expect.assertions(1);
+        await expect(parseRecipesPage(dom.window.document)).rejects.toEqual("Main div not found");
+    });
+
+    it("should not find spells", async () => {
+        const dom = new JSDOM("<div class=\"listings-page\"></div>");
+        expect.assertions(1);
+        await expect(parseRecipesPage(dom.window.document)).rejects.toEqual("No spells found");
+    });
+
+    it("should not find href", async () => {
+        const dom = new JSDOM(
+            "<div class=\"listings-page\"> \
+             <div class=\"listing-body\"> \
+             <table> \
+             <tbody> \
+             <tr> \
+             <td class=\"col-name\"> \
+             <a class=\"t\">link</a> \
+             </td></tr></tbody></table></div></div>");
+        expect.assertions(1);
+        await expect(parseRecipesPage(dom.window.document)).rejects.toEqual("Missing href");
+    });
+
+    it("should not find spell id", async () => {
+        const dom = new JSDOM(
+            "<div class=\"listings-page\"> \
+            <div class=\"listing-body\"> \
+            <table> \
+            <tbody> \
+            <tr> \
+            <td class=\"col-name\"> \
+            <a class=\"t\" href=\"foo\">link</a> \
+            </td></tr></tbody></table></div></div>");
+        expect.assertions(1);
+        await expect(parseRecipesPage(dom.window.document)).rejects.toEqual("No spell id found in href");
+    });
 });
 
 describe("getRecipes", () => {

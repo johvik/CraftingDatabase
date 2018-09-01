@@ -6,6 +6,8 @@ export function getDocument(url: string) {
         return rp.get(url).then((body) => {
             const dom = new JSDOM(body);
             return resolve(dom.window.document);
-        }, reject);
+        }, () => {
+            return reject("Request failed");
+        });
     });
 }

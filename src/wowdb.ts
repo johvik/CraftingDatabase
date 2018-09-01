@@ -29,7 +29,7 @@ export function parseRecipesPage(document: Document) {
             const next = listingsPage.querySelector("li.b-pagination-item.b-pagination-item-next") !== null;
             return resolve({ spellIds, next });
         } else {
-            return reject("Main div not");
+            return reject("Main div not found");
         }
     });
 }
