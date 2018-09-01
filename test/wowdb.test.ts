@@ -1,4 +1,4 @@
-import { parseRecipesPage, getRecipes } from "../src/wowdb";
+import { parseRecipesPage, getRecipesIds, getRecipe } from "../src/wowdb";
 import { JSDOM } from "jsdom";
 import fs from "fs";
 import path from "path";
@@ -63,9 +63,55 @@ describe("parseRecipesPage", () => {
     });
 });
 
-describe("getRecipes", () => {
+describe("getRecipesIds", () => {
     it("should hopefully work", async () => {
-        const spellIds = await getRecipes();
+        const spellIds = await getRecipesIds();
         expect(spellIds).not.toHaveLength(0);
     }, 20000);
+});
+
+describe("getRecipe", () => {
+    it("should get Sailor's Pie", async () => {
+        const recipe = await getRecipe(259441);
+        expect(recipe).toEqual({
+            id: 259441,
+            name: "Sailor's Pie",
+            trade: "inv_misc_food_15",
+            reagents: [
+                { id: 152631, quantity: 10 },
+                { id: 160399, quantity: 5 },
+                { id: 160400, quantity: 4 },
+                { id: 160709, quantity: 4 }],
+            crafts: { id: 154888, quantity: 10 }
+        });
+    });
+
+    it("should get Weapon Enchant - Siphoning", async () => {
+        const recipe = await getRecipe(255112);
+        expect(recipe).toEqual({
+            id: 255112,
+            name: "Weapon Enchant - Siphoning",
+            trade: "trade_engraving",
+            reagents: [
+                { id: 152876, quantity: 3 },
+                { id: 152875, quantity: 15 },
+                { id: 152877, quantity: 1 }],
+            crafts: { id: 153478, quantity: 1 }
+        });
+    });
+
+    it("should get Flask of the Vast Horizon", async () => {
+        const recipe = await getRecipe(252354);
+        expect(recipe).toEqual({
+            id: 252354,
+            name: "Flask of the Vast Horizon",
+            trade: "trade_alchemy",
+            reagents: [
+                { id: 152510, quantity: 10 },
+                { id: 152508, quantity: 15 },
+                { id: 152506, quantity: 20 },
+                { id: 3371, quantity: 1 }],
+            crafts: { id: 152640, quantity: 1 }
+        });
+    });
 });
