@@ -5,6 +5,7 @@
             true,
             "check-space"
         ],
+        "curly": true,
         "indent": [
             true,
             "spaces"
@@ -54,6 +55,10 @@
         "no-internal-module": true,
         "no-trailing-whitespace": true,
         "no-null-keyword": true,
+        "no-string-throw": true,
+        "no-unused-expression": true,
+        "no-duplicate-variable": true,
+        "triple-equals": true,
         "prefer-const": true,
         "jsdoc-format": true
     }
