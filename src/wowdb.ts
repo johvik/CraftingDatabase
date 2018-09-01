@@ -76,6 +76,9 @@ export function getRecipe(spellId: number) {
                 if (reagents.length === 0) {
                     return reject("Expected at least one reagent");
                 }
+                if (data.Name === "REUSE ME") {
+                    return reject("Skipping REUSE ME");
+                }
                 if (data.Effects.length !== 1) {
                     return reject("Expected one effect");
                 }

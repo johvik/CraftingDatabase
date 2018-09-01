@@ -114,4 +114,9 @@ describe("getRecipe", () => {
             crafts: { id: 152640, quantity: 1 }
         });
     });
+
+    it("should skip REUSE ME", async () => {
+        expect.assertions(1);
+        await expect(getRecipe(269461)).rejects.toEqual("Skipping REUSE ME");
+    });
 });
