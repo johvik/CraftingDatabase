@@ -19,6 +19,12 @@ export class WowApi {
 
     getAuctionDataStatus() {
         return new Promise<AuctionFile[]>((resolve, reject) => {
+            // {
+            //     "files": [{
+            //         "url": "http://auction-api-eu.worldofwarcraft.com/auction-data/e4a529d50fe9f24cff1ad0bf1c56c897/auctions.json",
+            //         "lastModified": 1535890107000
+            //     }]
+            // }
             const url = "https://" + this.region + ".api.battle.net/wow/auction/data/" + this.realm + "?locale=en_GB&apikey=" + WOW_API_KEY;
             return rp(url).then((body: string) => {
                 const data = JSON.parse(body);
