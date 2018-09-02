@@ -16,7 +16,7 @@ export function getAuctionDataStatus(region: Region, realm: string) {
         //         "lastModified": 1535890107000
         //     }]
         // }
-        const url = "https://" + region + ".api.battle.net/wow/auction/data/" + realm + "?locale=en_GB&apikey=" + WOW_API_KEY;
+        const url = "https://" + region + ".api.battle.net/wow/auction/data/" + realm + "?apikey=" + WOW_API_KEY;
         return rp(url).then((body: string) => {
             const data = JSON.parse(body);
             if (!data.files || data.files.length === 0) {
