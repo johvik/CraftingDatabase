@@ -1,8 +1,8 @@
-import { Region, WowApi } from "../src/wowapi";
+import { Region, getAuctionDataStatus } from "../src/wowapi";
 
 describe("getAuctionDataStatus", () => {
-    it("should hopefully work", async () => {
-        const files = await new WowApi(Region.EU, "draenor").getAuctionDataStatus();
+    it("should get Draenor EU", async () => {
+        const files = await getAuctionDataStatus(Region.EU, "draenor");
         expect(files).not.toHaveLength(0);
     });
 });
