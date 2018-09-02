@@ -1,4 +1,4 @@
-import { parseRecipesPage, getRecipesIds, getRecipe, getVendorPrice } from "../src/wowdb";
+import { parseRecipesPage, getRecipesIds, getRecipe } from "../src/wowdb";
 import { JSDOM } from "jsdom";
 import fs from "fs";
 import path from "path";
@@ -123,38 +123,5 @@ describe("getRecipe", () => {
     it("should skip REUSE ME (DNT)", async () => {
         expect.assertions(1);
         await expect(getRecipe(255106)).rejects.toEqual("Skipping REUSE ME");
-    });
-});
-
-describe("getVendorPrice", () => {
-    it("should get Powdered Sugar", async () => {
-        const vendorPrice = await getVendorPrice(160712);
-        expect(vendorPrice).toEqual(25000);
-    });
-
-    it("should get Silvercoat Stag Meat", async () => {
-        const vendorPrice = await getVendorPrice(35794);
-        expect(vendorPrice).toEqual(8000);
-    });
-
-    it("should get Big Gamy Ribs", async () => {
-        // TODO This seems to be bought with items and not gold
-        const vendorPrice = await getVendorPrice(124119);
-        expect(vendorPrice).toEqual(1200);
-    });
-
-    it("should not get Aromatic Fish Oil", async () => {
-        expect.assertions(1);
-        await expect(getVendorPrice(160711)).rejects.toEqual("Not a vendor item");
-    });
-
-    it("should not get Gloom Dust", async () => {
-        expect.assertions(1);
-        await expect(getVendorPrice(152875)).rejects.toEqual("Not a vendor item");
-    });
-
-    it("should not get Gloom Dust", async () => {
-        expect.assertions(1);
-        await expect(getVendorPrice(152875)).rejects.toEqual("Not a vendor item");
     });
 });

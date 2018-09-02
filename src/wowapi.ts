@@ -35,3 +35,25 @@ export function getAuctionDataStatus(region: Region, realm: string) {
         });
     });
 }
+
+type Item = { name: string, buyPrice?: number, stackSize: number };
+
+export function getItem(itemId: number) {
+    return new Promise<Item>((resolve, reject) => {
+        const url = "https://eu.api.battle.net/wow/item/" + itemId + "?apikey=" + WOW_API_KEY;
+        return rp(url).then((body: string) => {
+            const data = JSON.parse(body);
+            if (data.id !== itemId || !data.name || (!data.buyPrice && data.buyPrice !== 0) || !data.stackable) {
+                return reject("Bad item");
+            }
+            const name = data.name;
+            const stackSize = parseInt(data.stackable);
+            if (data.buyPrice === 0) {
+                return resolve({ name: name, stackSize: stackSize });
+            }
+            return resolve({ name: name, buyPrice: data.buyPrice, stackSize: stackSize });
+        }, () => {
+            return reject("Request failed");
+        });
+    });
+}

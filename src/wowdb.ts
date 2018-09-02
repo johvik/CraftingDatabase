@@ -96,24 +96,3 @@ export function getRecipe(spellId: number) {
         });
     });
 }
-
-export function getVendorPrice(itemId: number) {
-    return new Promise<number>((resolve, reject) => {
-        return rp.get("https://www.wowdb.com/api/item/" + itemId).then((body: string) => {
-            // Remove the extra parentheses in the body
-            const data = JSON.parse(body.slice(1, -1));
-            if (data.ID && data.ID === itemId && data.BuyPrice && (data.Source || data.Source === 0) && data.BindType === 0) {
-                const price = parseInt(data.BuyPrice);
-                // Assume Source=0 is vendor for now, seems like some of the items are
-                const vendor = (data.Source & 0x4000) !== 0 || data.Source === 0;
-                if (price && vendor) {
-                    return resolve(price);
-                }
-                return reject("Not a vendor item");
-            }
-            return reject("Bad item");
-        }, () => {
-            return reject("Request failed");
-        });
-    });
-}
