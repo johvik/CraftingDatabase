@@ -60,6 +60,15 @@
         "no-duplicate-variable": true,
         "triple-equals": true,
         "prefer-const": true,
-        "jsdoc-format": true
+        "jsdoc-format": true,
+        "promise-function-async": true,
+        "await-promise": [
+            true,
+            "RequestPromise"
+        ],
+        "no-floating-promises": [
+            true,
+            "RequestPromise"
+        ]
     }
 }
