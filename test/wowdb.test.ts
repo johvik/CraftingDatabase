@@ -22,19 +22,21 @@ describe("parseRecipesPage", () => {
         expect(result.next).toEqual(false);
     });
 
-    it("should not find the main div", async () => {
+    it("should not find the main div", () => {
         const dom = new JSDOM("");
-        expect.assertions(1);
-        await expect(parseRecipesPage(dom.window.document)).rejects.toThrowError("Main div not found");
+        expect(() => {
+            parseRecipesPage(dom.window.document);
+        }).toThrowError("Main div not found");
     });
 
-    it("should not find spells", async () => {
+    it("should not find spells", () => {
         const dom = new JSDOM("<div class=\"listings-page\"></div>");
-        expect.assertions(1);
-        await expect(parseRecipesPage(dom.window.document)).rejects.toThrowError("No spells found");
+        expect(() => {
+            parseRecipesPage(dom.window.document);
+        }).toThrowError("No spells found");
     });
 
-    it("should not find href", async () => {
+    it("should not find href", () => {
         const dom = new JSDOM(
             "<div class=\"listings-page\"> \
              <div class=\"listing-body\"> \
@@ -44,11 +46,12 @@ describe("parseRecipesPage", () => {
              <td class=\"col-name\"> \
              <a class=\"t\">link</a> \
              </td></tr></tbody></table></div></div>");
-        expect.assertions(1);
-        await expect(parseRecipesPage(dom.window.document)).rejects.toThrowError("Missing href");
+        expect(() => {
+            parseRecipesPage(dom.window.document);
+        }).toThrowError("Missing href");
     });
 
-    it("should not find spell id", async () => {
+    it("should not find spell id", () => {
         const dom = new JSDOM(
             "<div class=\"listings-page\"> \
             <div class=\"listing-body\"> \
@@ -58,8 +61,9 @@ describe("parseRecipesPage", () => {
             <td class=\"col-name\"> \
             <a class=\"t\" href=\"foo\">link</a> \
             </td></tr></tbody></table></div></div>");
-        expect.assertions(1);
-        await expect(parseRecipesPage(dom.window.document)).rejects.toThrowError("No spell id found in href");
+        expect(() => {
+            parseRecipesPage(dom.window.document);
+        }).toThrowError("No spell id found in href");
     });
 });
 

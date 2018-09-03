@@ -3,8 +3,7 @@ import { JSDOM } from "jsdom";
 
 type RecipiesParseResult = { spellIds: number[], next: boolean };
 
-// TODO Make this a plain function?
-export async function parseRecipesPage(document: Document): Promise<RecipiesParseResult> {
+export function parseRecipesPage(document: Document): RecipiesParseResult {
     const listingsPage = document.querySelector("div.listings-page");
     if (!listingsPage) {
         throw new Error("Main div not found");
@@ -37,7 +36,7 @@ export async function getRecipesIds(): Promise<number[]> {
         const url = "https://www.wowdb.com/spells/professions?filter-expansion=8&filter-req-reagent=1&page=" + page;
         const body = await rp.get(url);
         const dom = new JSDOM(body);
-        const result = await parseRecipesPage(dom.window.document);
+        const result = parseRecipesPage(dom.window.document);
         spellIds.push(...result.spellIds);
         next = result.next;
         if (page > 20) {
