@@ -1,5 +1,5 @@
 import rp from "request-promise-native";
-import { getDocument } from "./utils";
+import { JSDOM } from "jsdom";
 
 type RecipiesParseResult = { spellIds: number[], next: boolean };
 
@@ -34,8 +34,10 @@ export async function parseRecipesPage(document: Document): Promise<RecipiesPars
 export async function getRecipesIds(): Promise<number[]> {
     const spellIds: number[] = [];
     for (let page = 1, next = true; next; page++) {
-        const document = await getDocument("https://www.wowdb.com/spells/professions?filter-expansion=8&filter-req-reagent=1&page=" + page);
-        const result = await parseRecipesPage(document);
+        const url = "https://www.wowdb.com/spells/professions?filter-expansion=8&filter-req-reagent=1&page=" + page;
+        const body = await rp.get(url);
+        const dom = new JSDOM(body);
+        const result = await parseRecipesPage(dom.window.document);
         spellIds.push(...result.spellIds);
         next = result.next;
         if (page > 20) {
