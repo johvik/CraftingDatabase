@@ -8,6 +8,6 @@ describe("getDocument", () => {
 
     it("should not get a bad url", async () => {
         expect.assertions(1);
-        await expect(getDocument("http://")).rejects.toEqual("Request failed");
+        await expect(getDocument("http://")).rejects.toThrowError("Invalid URI");
     });
 });

@@ -25,13 +25,13 @@ describe("parseRecipesPage", () => {
     it("should not find the main div", async () => {
         const dom = new JSDOM("");
         expect.assertions(1);
-        await expect(parseRecipesPage(dom.window.document)).rejects.toEqual("Main div not found");
+        await expect(parseRecipesPage(dom.window.document)).rejects.toThrowError("Main div not found");
     });
 
     it("should not find spells", async () => {
         const dom = new JSDOM("<div class=\"listings-page\"></div>");
         expect.assertions(1);
-        await expect(parseRecipesPage(dom.window.document)).rejects.toEqual("No spells found");
+        await expect(parseRecipesPage(dom.window.document)).rejects.toThrowError("No spells found");
     });
 
     it("should not find href", async () => {
@@ -45,7 +45,7 @@ describe("parseRecipesPage", () => {
              <a class=\"t\">link</a> \
              </td></tr></tbody></table></div></div>");
         expect.assertions(1);
-        await expect(parseRecipesPage(dom.window.document)).rejects.toEqual("Missing href");
+        await expect(parseRecipesPage(dom.window.document)).rejects.toThrowError("Missing href");
     });
 
     it("should not find spell id", async () => {
@@ -59,7 +59,7 @@ describe("parseRecipesPage", () => {
             <a class=\"t\" href=\"foo\">link</a> \
             </td></tr></tbody></table></div></div>");
         expect.assertions(1);
-        await expect(parseRecipesPage(dom.window.document)).rejects.toEqual("No spell id found in href");
+        await expect(parseRecipesPage(dom.window.document)).rejects.toThrowError("No spell id found in href");
     });
 });
 
@@ -117,11 +117,11 @@ describe("getRecipe", () => {
 
     it("should skip REUSE ME", async () => {
         expect.assertions(1);
-        await expect(getRecipe(269461)).rejects.toEqual("Skipping REUSE ME");
+        await expect(getRecipe(269461)).rejects.toThrowError("Skipping REUSE ME");
     });
 
     it("should skip REUSE ME (DNT)", async () => {
         expect.assertions(1);
-        await expect(getRecipe(255106)).rejects.toEqual("Skipping REUSE ME");
+        await expect(getRecipe(255106)).rejects.toThrowError("Skipping REUSE ME");
     });
 });

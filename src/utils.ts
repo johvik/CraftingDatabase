@@ -1,13 +1,8 @@
 import rp from "request-promise-native";
 import { JSDOM } from "jsdom";
 
-export function getDocument(url: string) {
-    return new Promise<Document>((resolve, reject) => {
-        return rp.get(url).then((body: string) => {
-            const dom = new JSDOM(body);
-            return resolve(dom.window.document);
-        }, () => {
-            return reject("Request failed");
-        });
-    });
+export async function getDocument(url: string): Promise<Document> {
+    const body = await rp.get(url);
+    const dom = new JSDOM(body);
+    return dom.window.document;
 }

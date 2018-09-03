@@ -20,7 +20,7 @@ describe("getItem", () => {
 
     it("should get Big Gamy Ribs", async () => {
         const item = await getItem(124119);
-        expect(item).toEqual({ name: "Big Gamy Ribs", stackSize: 200 });
+        expect(item).toEqual({ name: "Big Gamy Ribs", buyPrice: 0, stackSize: 200 });
     });
 
     it("should get Aromatic Fish Oil", async () => {
@@ -31,6 +31,6 @@ describe("getItem", () => {
 
     it("should get Gloom Dust", async () => {
         const item = await getItem(152875);
-        expect(item).toEqual({ name: "Gloom Dust", stackSize: 200 });
+        expect(item).toEqual({ name: "Gloom Dust", buyPrice: 0, stackSize: 200 });
     });
 });
