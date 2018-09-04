@@ -15,7 +15,7 @@ const AuctionFile = t.type({
 });
 
 const AuctionFiles = t.type({
-    files: t.array(AuctionFile)
+    files: t.refinement(t.array(AuctionFile), files => files.length > 0)
 });
 
 type IAuctionFile = t.TypeOf<typeof AuctionFile>;
