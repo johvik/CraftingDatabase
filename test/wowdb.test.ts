@@ -121,11 +121,11 @@ describe("getRecipe", () => {
 
     it("should skip REUSE ME", async () => {
         expect.assertions(1);
-        await expect(getRecipe(269461)).rejects.toThrowError("Skipping REUSE ME");
+        await expect(getRecipe(269461)).rejects.toThrowError("Invalid value \"REUSE ME");
     });
 
     it("should skip REUSE ME (DNT)", async () => {
         expect.assertions(1);
-        await expect(getRecipe(255106)).rejects.toThrowError("Skipping REUSE ME");
+        await expect(getRecipe(255106)).rejects.toThrowError("Invalid value \"REUSE ME");
     });
 });

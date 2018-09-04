@@ -1,5 +1,7 @@
 import rp from "request-promise-native";
+import * as t from "io-ts";
 import { JSDOM } from "jsdom";
+import { decodeOrThrow } from "./utils";
 
 type RecipiesParseResult = { spellIds: number[], next: boolean };
 
@@ -46,42 +48,53 @@ export async function getRecipesIds(): Promise<number[]> {
     return spellIds;
 }
 
+const Reagent = t.type({
+    Item: t.number,
+    ItemQty: t.number
+});
+
+const Effect = t.type({
+    Item: t.number,
+    BasePoints: t.number
+});
+
+const Spell = t.type({
+    ID: t.number,
+    Icon: t.string,
+    Reagents: t.refinement(t.array(Reagent), reagents => reagents.length !== 0),
+    Name: t.refinement(t.string, name => !name.startsWith("REUSE ME")),
+    Effects: t.refinement(t.array(Effect), effects => effects.length === 1)
+});
+
 type Item = { id: number, quantity: number };
 type Recipe = { id: number, name: string, trade: string, reagents: Item[], crafts: Item };
 
 export async function getRecipe(spellId: number): Promise<Recipe> {
     const body = await rp.get("https://www.wowdb.com/api/spell/" + spellId);
     // Remove the extra parentheses in the body
-    const data = JSON.parse(body.slice(1, -1));
-    if (!data.ID || data.ID !== spellId || !data.Icon || !data.Reagents || !data.Name || !data.Effects) {
-        throw new Error("Bad spell");
+    const spell = decodeOrThrow(Spell, JSON.parse(body.slice(1, -1)));
+    const match = spell.Icon.match(/([^\.]+)\./);
+    if (spell.ID !== spellId) {
+        throw new Error("Wrong ID");
     }
-    const match = (data.Icon + "").match(/([^\.]+)\./);
     if (!match) {
         throw new Error("No icon match");
     }
     const trade = match[1];
-    const reagents: Item[] = [];
-    for (const i of data.Reagents) {
-        if (!i.Item || !i.ItemQty) {
-            throw new Error("Bad Reagents");
+    const reagents: Item[] = spell.Reagents.map((reagent) => {
+        return { id: reagent.Item, quantity: reagent.ItemQty };
+    });
+    const effect = spell.Effects[0];
+    const quantity = Math.max(1, effect.BasePoints);
+
+    return {
+        id: spell.ID,
+        name: spell.Name,
+        trade: trade,
+        reagents: reagents,
+        crafts: {
+            id: effect.Item,
+            quantity: quantity
         }
-        reagents.push({ id: i.Item, quantity: i.ItemQty });
-    }
-    if (reagents.length === 0) {
-        throw new Error("Expected at least one reagent");
-    }
-    if (data.Name.startsWith("REUSE ME")) {
-        throw new Error("Skipping REUSE ME");
-    }
-    if (data.Effects.length !== 1) {
-        throw new Error("Expected one effect");
-    }
-    const effect = data.Effects[0];
-    if (!effect.Item || (!effect.BasePoints && effect.BasePoints !== 0)) {
-        throw new Error("Bad effect");
-    }
-    const quantity = parseInt(effect.BasePoints);
-    const crafts = { id: parseInt(effect.Item), quantity: (quantity !== 0 ? quantity : 1) };
-    return { id: data.ID, name: data.Name, trade: trade, reagents: reagents, crafts: crafts };
+    };
 }
