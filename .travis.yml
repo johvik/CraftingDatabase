@@ -1,6 +1,9 @@
 {
     "language": "node_js",
     "node_js": "8",
+    "addons": [
+        "mariadb": "10.3"
+    ],
     "script": [
         "npm run build",
         "npm run test"
