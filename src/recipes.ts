@@ -33,8 +33,8 @@ const RecipeInfos = t.dictionary(t.refinement(t.string, key => /^\d+$/.test(key)
 type IRecipeInfos = t.TypeOf<typeof RecipeInfos>;
 
 export class Recipes {
-    readonly file = "recipes.json";
-    recipes: IRecipeInfos = this.loadFromFile();
+    private readonly file = "recipes.json";
+    private recipes: IRecipeInfos = this.loadFromFile();
 
     private loadFromFile(): IRecipeInfos {
         try {
@@ -73,5 +73,24 @@ export class Recipes {
             }
         }
         writeFileSync(this.file, JSON.stringify(this.recipes));
+    }
+
+    empty(): boolean {
+        return Object.keys(this.recipes).length === 0;
+    }
+
+    items(): Set<number> {
+        const items = new Set<number>();
+
+        for (const key in this.recipes) {
+            const recipe = this.recipes[key].recipe;
+            if (recipe) {
+                items.add(recipe.crafts.id);
+                for (const i of recipe.reagents) {
+                    items.add(i.id);
+                }
+            }
+        }
+        return items;
     }
 }

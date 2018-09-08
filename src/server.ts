@@ -25,10 +25,10 @@ export async function dummy() {
 
 export async function start() {
     const recipes = new Recipes();
-    const count = Object.keys(recipes.recipes).length;
-    console.info("Found " + count + " recipes");
-    if (count === 0) {
+    if (recipes.empty()) {
         await recipes.update();
+    } else {
+        console.info("Using existing recipes");
     }
 }
 
