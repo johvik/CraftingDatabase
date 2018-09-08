@@ -9,7 +9,12 @@ export const DB_USERNAME = process.env["DB_USERNAME"];
 export const DB_PASSWORD = process.env["DB_PASSWORD"];
 export const DB_DATABASE = process.env["DB_DATABASE"];
 
-if (!WOW_API_KEY || !DB_HOST || isNaN(DB_PORT) || !DB_USERNAME || !DB_PASSWORD || !DB_DATABASE) {
+if (WOW_API_KEY === undefined ||
+    DB_HOST === undefined ||
+    isNaN(DB_PORT) ||
+    DB_USERNAME === undefined ||
+    DB_PASSWORD === undefined ||
+    DB_DATABASE === undefined) {
     console.error("Missing environment variables.");
     process.exit(1);
 }
