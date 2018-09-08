@@ -80,6 +80,7 @@ describe("getRecipe", () => {
         expect(recipe).toEqual({
             id: 259441,
             name: "Sailor's Pie",
+            rank: 3,
             trade: "inv_misc_food_15",
             reagents: [
                 { id: 152631, quantity: 10 },
@@ -95,6 +96,7 @@ describe("getRecipe", () => {
         expect(recipe).toEqual({
             id: 255112,
             name: "Weapon Enchant - Siphoning",
+            rank: 3,
             trade: "trade_engraving",
             reagents: [
                 { id: 152876, quantity: 3 },
@@ -109,6 +111,7 @@ describe("getRecipe", () => {
         expect(recipe).toEqual({
             id: 252354,
             name: "Flask of the Vast Horizon",
+            rank: 1,
             trade: "trade_alchemy",
             reagents: [
                 { id: 152510, quantity: 10 },

@@ -61,26 +61,32 @@ const Effect = t.type({
 const Spell = t.type({
     ID: t.number,
     Icon: t.string,
+    Rank: t.string,
     Reagents: t.refinement(t.array(Reagent), reagents => reagents.length !== 0),
     Name: t.refinement(t.string, name => !name.startsWith("REUSE ME")),
     Effects: t.refinement(t.array(Effect), effects => effects.length === 1)
 });
 
 type Item = { id: number, quantity: number };
-type Recipe = { id: number, name: string, trade: string, reagents: Item[], crafts: Item };
+type Recipe = { id: number, name: string, rank: number, trade: string, reagents: Item[], crafts: Item };
 
 export async function getRecipe(spellId: number): Promise<Recipe> {
     const body = await rp.get("https://www.wowdb.com/api/spell/" + spellId);
     // Remove the extra parentheses in the body
     const spell = decodeOrThrow(Spell, JSON.parse(body.slice(1, -1)));
-    const match = spell.Icon.match(/([^\.]+)\./);
+    const rankMatch = spell.Rank.match(/.* (\d+)/);
+    const iconMatch = spell.Icon.match(/([^\.]+)\./);
     if (spell.ID !== spellId) {
         throw new Error("Wrong ID");
     }
-    if (!match) {
+    if (!rankMatch) {
+        throw new Error("No rank match");
+    }
+    if (!iconMatch) {
         throw new Error("No icon match");
     }
-    const trade = match[1];
+    const rank = parseInt(rankMatch[1]);
+    const trade = iconMatch[1];
     const reagents: Item[] = spell.Reagents.map((reagent) => {
         return { id: reagent.Item, quantity: reagent.ItemQty };
     });
@@ -90,6 +96,7 @@ export async function getRecipe(spellId: number): Promise<Recipe> {
     return {
         id: spell.ID,
         name: spell.Name,
+        rank: rank,
         trade: trade,
         reagents: reagents,
         crafts: {
