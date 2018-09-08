@@ -2,6 +2,7 @@ import rp from "request-promise-native";
 import * as t from "io-ts";
 import { JSDOM } from "jsdom";
 import { decodeOrThrow } from "./utils";
+import { IRecipe } from "./recipes";
 
 type RecipiesParseResult = { spellIds: number[], next: boolean };
 
@@ -67,27 +68,21 @@ const Spell = t.type({
     Effects: t.refinement(t.array(Effect), effects => effects.length === 1)
 });
 
-type Item = { id: number, quantity: number };
-type Recipe = { id: number, name: string, rank: number, trade: string, reagents: Item[], crafts: Item };
-
-export async function getRecipe(spellId: number): Promise<Recipe> {
+export async function getRecipe(spellId: number): Promise<IRecipe> {
     const body = await rp.get("https://www.wowdb.com/api/spell/" + spellId);
     // Remove the extra parentheses in the body
     const spell = decodeOrThrow(Spell, JSON.parse(body.slice(1, -1)));
     const rankMatch = spell.Rank.match(/.* (\d+)/);
     const iconMatch = spell.Icon.match(/([^\.]+)\./);
     if (spell.ID !== spellId) {
-        throw new Error("Wrong ID");
-    }
-    if (!rankMatch) {
-        throw new Error("No rank match");
+        throw new Error("Wrong ID " + spellId);
     }
     if (!iconMatch) {
-        throw new Error("No icon match");
+        throw new Error("No icon match " + spellId);
     }
-    const rank = parseInt(rankMatch[1]);
+    const rank = rankMatch ? parseInt(rankMatch[1]) : 0;
     const trade = iconMatch[1];
-    const reagents: Item[] = spell.Reagents.map((reagent) => {
+    const reagents = spell.Reagents.map((reagent) => {
         return { id: reagent.Item, quantity: reagent.ItemQty };
     });
     const effect = spell.Effects[0];

@@ -3,6 +3,7 @@ import { createConnection } from "typeorm";
 import { DB_HOST, DB_PORT, DB_USERNAME, DB_PASSWORD, DB_DATABASE } from "./secrets";
 import { Realm } from "./entity/Realm";
 import { AuctionItem } from "./entity/AuctionItem";
+import { Recipes } from "./recipes";
 
 export async function dummy() {
     const connection = await createConnection({
@@ -20,4 +21,9 @@ export async function dummy() {
     const realm = realmRepository.create({ region: "eu", name: "draenor" });
     await realmRepository.save(realm);
     await connection.close();
+}
+
+export async function foo() {
+    const recipes = new Recipes();
+    await recipes.update();
 }

@@ -131,4 +131,18 @@ describe("getRecipe", () => {
         expect.assertions(1);
         await expect(getRecipe(255106)).rejects.toThrowError("Invalid value \"REUSE ME");
     });
+
+    it("should get Transmute: Herbs to Ore", async () => {
+        const recipe = await getRecipe(251305);
+        expect(recipe).toEqual({
+            id: 251305,
+            name: "Transmute: Herbs to Ore",
+            rank: 0,
+            trade: "trade_alchemy",
+            reagents: [
+                { id: 152509, quantity: 5 },
+                { id: 152505, quantity: 5 }],
+            crafts: { id: 160322, quantity: 1 }
+        });
+    });
 });
