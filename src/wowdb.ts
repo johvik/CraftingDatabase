@@ -37,7 +37,7 @@ export async function getRecipesIds(): Promise<number[]> {
     const spellIds: number[] = [];
     for (let page = 1, next = true; next; page++) {
         const url = "https://www.wowdb.com/spells/professions?filter-expansion=8&filter-req-reagent=1&page=" + page;
-        const body = await rp.get(url);
+        const body = await rp.get(url, { timeout: 5000 });
         const dom = new JSDOM(body);
         const result = parseRecipesPage(dom.window.document);
         spellIds.push(...result.spellIds);
@@ -69,7 +69,7 @@ const Spell = t.type({
 });
 
 export async function getRecipe(spellId: number): Promise<IRecipe> {
-    const body = await rp.get("https://www.wowdb.com/api/spell/" + spellId);
+    const body = await rp.get("https://www.wowdb.com/api/spell/" + spellId, { timeout: 5000 });
     // Remove the extra parentheses in the body
     const spell = decodeOrThrow(Spell, JSON.parse(body.slice(1, -1)));
     const rankMatch = spell.Rank.match(/.* (\d+)/);

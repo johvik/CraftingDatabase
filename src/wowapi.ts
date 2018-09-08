@@ -28,7 +28,7 @@ export async function getAuctionDataStatus(region: Region, realm: string): Promi
     //     }]
     // }
     const url = "https://" + region + ".api.battle.net/wow/auction/data/" + realm + "?apikey=" + WOW_API_KEY;
-    const body = await rp.get(url);
+    const body = await rp.get(url, { timeout: 5000 });
 
     return decodeOrThrow(AuctionFiles, JSON.parse(body)).files;
 }
@@ -43,6 +43,6 @@ type IItem = t.TypeOf<typeof Item>;
 
 export async function getItem(itemId: number): Promise<IItem> {
     const url = "https://eu.api.battle.net/wow/item/" + itemId + "?apikey=" + WOW_API_KEY;
-    const body = await rp.get(url);
+    const body = await rp.get(url, { timeout: 5000 });
     return decodeOrThrow(Item, JSON.parse(body));
 }
