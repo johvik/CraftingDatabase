@@ -5,6 +5,7 @@ import { Realm } from "./entity/Realm";
 import { Auction } from "./entity/Auction";
 import { Recipes } from "./recipes";
 import { getAuctionDataStatus, Region, getAuctionData } from "./wowapi";
+import { getQuartile, MergedValue, getTotalCount } from "./utils";
 
 async function storeRealm(region: Region, realm: string): Promise<number> {
     const repository = getRepository(Realm);
@@ -16,40 +17,13 @@ async function storeRealm(region: Region, realm: string): Promise<number> {
     return (await repository.save(newRealm)).id;
 }
 
-type AuctionItem = {
-    buyout: number,
-    quantity: number
-};
-
-export function getQuartile(values: AuctionItem[], totalQuantity: number) {
-    // TODO Test this function and see if its off by one etc
-    const first = totalQuantity / 4;
-    const second = totalQuantity / 2;
-    let sum = 0;
-    let i = 0;
-    for (; sum < first; i++) {
-        sum += values[i].quantity;
-    }
-    const firstQuartile = values[i - 1].buyout / values[i - 1].quantity;
-
-    for (; sum < second; i++) {
-        sum += values[i].quantity;
-    }
-    const secondQuartile = values[i - 1].buyout / values[i - 1].quantity;
-
-    return {
-        first: firstQuartile,
-        second: secondQuartile
-    };
-}
-
-async function storeAuctionData(realmId: number, data: Map<number, AuctionItem[]>) {
+async function storeAuctionData(realmId: number, data: Map<number, MergedValue[]>) {
     const repository = getRepository(Auction);
     for (const [id, values] of data) {
-        values.sort((a, b) => (a.buyout / a.quantity) - (b.buyout / b.quantity));
-        const lowestPrice = values[0].buyout / values[0].quantity;
-        const totalQuantity = values.reduce((sum, i) => sum + i.quantity, 0);
-        const quartile = getQuartile(values, totalQuantity);
+        values.sort((a, b) => a.value - b.value);
+        const lowestPrice = values[0].value;
+        const totalCount = getTotalCount(values);
+        const quartile = getQuartile(values, totalCount);
 
         const auction = repository.create({
             realmId: realmId,
@@ -57,7 +31,7 @@ async function storeAuctionData(realmId: number, data: Map<number, AuctionItem[]
             lowestPrice: lowestPrice,
             firstQuartile: quartile.first,
             secondQuartile: quartile.second,
-            quantity: totalQuantity
+            quantity: totalCount
         });
         await repository.save(auction);
     }
@@ -69,14 +43,15 @@ async function updateAuctionData(region: Region, realm: string) {
     for (const i of status) {
         const data = await getAuctionData(realm, i.url);
 
-        // Merge items
-        const map = new Map<number, AuctionItem[]>();
+        // Merge items with the same id
+        const map = new Map<number, MergedValue[]>();
         for (const i of data) {
             const value = map.get(i.item);
+            const mergedValue = { value: i.buyout / i.quantity, count: i.quantity };
             if (value) {
-                value.push(i);
+                value.push(mergedValue);
             } else {
-                map.set(i.item, [i]);
+                map.set(i.item, [mergedValue]);
             }
         }
         await storeAuctionData(realmId, map);
@@ -102,7 +77,7 @@ async function start() {
         console.info("Using existing recipes");
     }
     await updateAuctionData(Region.EU, "draenor");
-    // TODO Get all items
+    // TODO Get the name etc of all items
 }
 
 start().then(() => {
