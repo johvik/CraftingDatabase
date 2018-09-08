@@ -23,7 +23,17 @@ export async function dummy() {
     await connection.close();
 }
 
-export async function foo() {
+export async function start() {
     const recipes = new Recipes();
-    await recipes.update();
+    const count = Object.keys(recipes.recipes).length;
+    console.info("Found " + count + " recipes");
+    if (count === 0) {
+        await recipes.update();
+    }
 }
+
+start().then(() => {
+    console.log("Started");
+}).catch(error => {
+    console.error("Error from start", error);
+});

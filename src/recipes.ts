@@ -2,6 +2,7 @@ import * as t from "io-ts";
 import { readFileSync, writeFileSync } from "fs";
 import { DateFromISOString } from "io-ts-types/lib/Date/DateFromISOString";
 import { getRecipesIds, getRecipe } from "./wowdb";
+import { decodeOrThrow } from "./utils";
 
 const Item = t.type({
     id: t.number,
@@ -28,7 +29,7 @@ const RecipeUpdated = t.type({
 
 const RecipeInfo = t.intersection([RecipeUpdated, MaybeRecipe]);
 
-const RecipeInfos = t.dictionary(t.number, RecipeInfo);
+const RecipeInfos = t.dictionary(t.refinement(t.string, key => /^\d+$/.test(key)), RecipeInfo);
 type IRecipeInfos = t.TypeOf<typeof RecipeInfos>;
 
 export class Recipes {
@@ -37,12 +38,9 @@ export class Recipes {
 
     private loadFromFile(): IRecipeInfos {
         try {
-            const result = RecipeInfos.decode(JSON.parse(readFileSync(this.file).toString()));
-            if (result.isRight()) {
-                return result.value;
-            }
-        } catch (e) {
-            console.error("Recipes#loadFromFile", e);
+            return decodeOrThrow(RecipeInfos, JSON.parse(readFileSync(this.file).toString()));
+        } catch (error) {
+            console.debug("Recipes#loadFromFile", error);
         }
         return {};
     }
@@ -56,8 +54,8 @@ export class Recipes {
                     this.recipes[id] = { updated: never };
                 }
             }
-        } catch (e) {
-            console.error("Recipes#update", e);
+        } catch (error) {
+            console.debug("Recipes#update", error);
         }
         await this.updateRecipes();
     }
@@ -70,8 +68,8 @@ export class Recipes {
                 const value = this.recipes[key];
                 value.recipe = recipe;
                 value.updated = now;
-            } catch (e) {
-                console.error("Recipes#updateRecipes", e);
+            } catch (error) {
+                console.debug("Recipes#updateRecipes", error);
             }
         }
         writeFileSync(this.file, JSON.stringify(this.recipes));
