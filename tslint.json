@@ -69,6 +69,7 @@
         "no-floating-promises": [
             true,
             "RequestPromise"
-        ]
+        ],
+        "no-consecutive-blank-lines": true
     }
 }

@@ -41,7 +41,6 @@ describe("getTotalCount", () => {
     });
 });
 
-
 describe("getQuartile", () => {
     it("should not handle empty arrays", () => {
         const values: MergedValue[] = [];
