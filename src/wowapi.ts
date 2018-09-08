@@ -63,11 +63,12 @@ export async function getAuctionData(expectedRealm: string, url: string): Promis
 
 const Item = t.type({
     name: t.string,
+    icon: t.string,
     buyPrice: t.number,
     stackable: t.number
 });
 
-type IItem = t.TypeOf<typeof Item>;
+export type IItem = t.TypeOf<typeof Item>;
 
 export async function getItem(itemId: number): Promise<IItem> {
     const url = "https://eu.api.battle.net/wow/item/" + itemId + "?apikey=" + WOW_API_KEY;
