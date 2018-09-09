@@ -76,5 +76,11 @@ export type IItem = t.TypeOf<typeof Item>;
 export async function getItem(itemId: number): Promise<IItem> {
     const url = "https://eu.api.battle.net/wow/item/" + itemId + "?apikey=" + WOW_API_KEY;
     const body = await rp.get(url, { timeout: 5000 });
-    return decodeOrThrow(Item, JSON.parse(body));
+    const item = decodeOrThrow(Item, JSON.parse(body));
+    return {
+        name: item.name,
+        icon: item.icon,
+        buyPrice: item.buyPrice,
+        stackable: item.stackable
+    };
 }
