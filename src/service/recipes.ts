@@ -10,7 +10,6 @@ const Item = t.type({
 });
 
 const Recipe = t.type({
-    id: t.number,
     name: t.string,
     rank: t.number,
     trade: t.string,

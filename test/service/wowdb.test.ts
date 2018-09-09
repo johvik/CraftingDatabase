@@ -78,7 +78,6 @@ describe("getRecipe", () => {
     it("should get Sailor's Pie", async () => {
         const recipe = await getRecipe(259441);
         expect(recipe).toEqual({
-            id: 259441,
             name: "Sailor's Pie",
             rank: 3,
             trade: "inv_misc_food_15",
@@ -94,7 +93,6 @@ describe("getRecipe", () => {
     it("should get Weapon Enchant - Siphoning", async () => {
         const recipe = await getRecipe(255112);
         expect(recipe).toEqual({
-            id: 255112,
             name: "Weapon Enchant - Siphoning",
             rank: 3,
             trade: "trade_engraving",
@@ -109,7 +107,6 @@ describe("getRecipe", () => {
     it("should get Flask of the Vast Horizon", async () => {
         const recipe = await getRecipe(252354);
         expect(recipe).toEqual({
-            id: 252354,
             name: "Flask of the Vast Horizon",
             rank: 1,
             trade: "trade_alchemy",
@@ -135,7 +132,6 @@ describe("getRecipe", () => {
     it("should get Transmute: Herbs to Ore", async () => {
         const recipe = await getRecipe(251305);
         expect(recipe).toEqual({
-            id: 251305,
             name: "Transmute: Herbs to Ore",
             rank: 0,
             trade: "trade_alchemy",

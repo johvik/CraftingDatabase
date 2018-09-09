@@ -89,7 +89,6 @@ export async function getRecipe(spellId: number): Promise<IRecipe> {
     const quantity = Math.max(1, effect.BasePoints);
 
     return {
-        id: spell.ID,
         name: spell.Name,
         rank: rank,
         trade: trade,
