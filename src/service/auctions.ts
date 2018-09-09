@@ -67,4 +67,12 @@ export class Auctions {
             }
         }
     }
+
+    static async items(): Promise<Set<number>> {
+        const ids = await getRepository(Auction)
+            .createQueryBuilder("auction")
+            .select("DISTINCT auction.id")
+            .getRawMany();
+        return new Set<number>(ids.map(id => id.id));
+    }
 }
