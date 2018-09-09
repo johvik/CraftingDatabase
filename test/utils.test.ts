@@ -1,4 +1,4 @@
-import { decodeOrThrow, MergedValue, getQuartile, getTotalCount } from "../src/utils";
+import { decodeOrThrow, MergedValue, getQuartile, getTotalCount, delay } from "../src/utils";
 import * as t from "io-ts";
 
 describe("decodeOrThrow", () => {
@@ -112,5 +112,29 @@ describe("getQuartile", () => {
             { value: 20, count: 3 }];
         const quartile = getQuartile(values, getTotalCount(values));
         expect(quartile).toEqual({ first: 6, second: 8 });
+    });
+});
+
+describe("delay", () => {
+    it("should not delay with negative numbers", async () => {
+        const start = new Date().getTime();
+        await delay(-1);
+        const diff = new Date().getTime() - start;
+        expect(diff).toBeLessThan(50);
+    });
+
+    it("should delay zero", async () => {
+        const start = new Date().getTime();
+        await delay(0);
+        const diff = new Date().getTime() - start;
+        expect(diff).toBeLessThan(50);
+    });
+
+    it("should delay 500 ms", async () => {
+        const start = new Date().getTime();
+        await delay(500);
+        const diff = new Date().getTime() - start;
+        expect(diff).toBeGreaterThanOrEqual(500);
+        expect(diff).toBeLessThan(550);
     });
 });

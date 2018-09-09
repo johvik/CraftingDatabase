@@ -5,6 +5,7 @@ import { Realm } from "./entity/Realm";
 import { Auction } from "./entity/Auction";
 import { Recipes } from "./service/recipes";
 import { Auctions } from "./service/auctions";
+import { Items } from "./service/items";
 
 async function start() {
     await createConnection({
@@ -18,14 +19,18 @@ async function start() {
         synchronize: true,
         logging: false
     });
+    console.info("Loading recipes");
     const recipes = new Recipes();
     if (recipes.empty()) {
         await recipes.update();
     } else {
         console.info("Using existing recipes");
     }
+    console.info("Loading auctions");
     await Auctions.updateAll();
-    // TODO Get the name etc of all items
+    console.info("Loading items");
+    const items = new Items();
+    await items.updateUnknown(recipes);
 }
 
 start().then(() => {

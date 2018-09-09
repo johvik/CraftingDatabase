@@ -69,7 +69,7 @@ export class Recipes {
                 value.updated = now;
             } catch (error) {
                 if (!(error + "").includes("Invalid value \"REUSE ME")) {
-                    console.debug("Recipes#updateRecipes", error);
+                    console.debug("Recipes#updateRecipes " + key, error);
                 }
             }
         }
@@ -86,7 +86,10 @@ export class Recipes {
         for (const key in this.recipes) {
             const recipe = this.recipes[key].recipe;
             if (recipe) {
-                items.add(recipe.crafts.id);
+                if (recipe.crafts.id !== 0) {
+                    // Items with direct effects has zero id eg: Feathery Spellthread (279184)
+                    items.add(recipe.crafts.id);
+                }
                 for (const i of recipe.reagents) {
                     items.add(i.id);
                 }

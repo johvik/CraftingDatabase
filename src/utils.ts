@@ -38,3 +38,9 @@ export function getQuartile(values: MergedValue[], totalCount: number) {
         second: secondQuartile
     };
 }
+
+export async function delay(milliseconds: number): Promise<void> {
+    if (milliseconds > 0) {
+        return new Promise<void>(resolve => setTimeout(resolve, milliseconds));
+    }
+}

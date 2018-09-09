@@ -13,8 +13,8 @@ describe("getItem", () => {
         expect(item).toEqual({
             name: "Powdered Sugar",
             icon: "inv_cooking_80_powderedsugar",
-            buyPrice: 25000,
-            stackable: 200
+            price: 25000,
+            stackSize: 200
         });
     });
 
@@ -23,8 +23,8 @@ describe("getItem", () => {
         expect(item).toEqual({
             name: "Silvercoat Stag Meat",
             icon: "inv_misc_food_70",
-            buyPrice: 8000,
-            stackable: 20
+            price: 8000,
+            stackSize: 20
         });
     });
 
@@ -33,8 +33,8 @@ describe("getItem", () => {
         expect(item).toEqual({
             name: "Big Gamy Ribs",
             icon: "inv_misc_food_legion_biggameyribs",
-            buyPrice: 0,
-            stackable: 200
+            price: 0,
+            stackSize: 200
         });
     });
 
@@ -44,8 +44,8 @@ describe("getItem", () => {
         expect(item).toEqual({
             name: "Aromatic Fish Oil",
             icon: "trade_alchemy_dpotion_e2",
-            buyPrice: 25000,
-            stackable: 200
+            price: 25000,
+            stackSize: 200
         });
     });
 
@@ -54,8 +54,8 @@ describe("getItem", () => {
         expect(item).toEqual({
             name: "Gloom Dust",
             icon: "inv_enchanting_80_shadowdust",
-            buyPrice: 0,
-            stackable: 200
+            price: 0,
+            stackSize: 200
         });
     });
 
@@ -64,8 +64,8 @@ describe("getItem", () => {
         expect(item).toEqual({
             name: "Flask of Endless Fathoms",
             icon: "inv_alchemy_80_flask01purple",
-            buyPrice: 10000,
-            stackable: 20
+            price: 10000,
+            stackSize: 20
         });
     });
 });
