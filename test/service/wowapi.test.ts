@@ -1,4 +1,4 @@
-import { Region, getAuctionDataStatus, getItem, IItem } from "../../src/service/wowapi";
+import { Region, getAuctionDataStatus, getItem } from "../../src/service/wowapi";
 
 describe("getAuctionDataStatus", () => {
     it("should get Draenor EU", async () => {
