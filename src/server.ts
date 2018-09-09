@@ -3,8 +3,8 @@ import { createConnection, getRepository } from "typeorm";
 import { DB_HOST, DB_PORT, DB_USERNAME, DB_PASSWORD, DB_DATABASE } from "./secrets";
 import { Realm } from "./entity/Realm";
 import { Auction } from "./entity/Auction";
-import { Recipes } from "./recipes";
-import { getAuctionDataStatus, Region, getAuctionData } from "./wowapi";
+import { Recipes } from "./service/recipes";
+import { getAuctionDataStatus, Region, getAuctionData } from "./service/wowapi";
 import { getQuartile, MergedValue, getTotalCount } from "./utils";
 
 async function storeRealm(region: Region, realm: string): Promise<number> {
