@@ -1,5 +1,7 @@
 import { Entity, PrimaryColumn, Generated, Column, Index } from "typeorm";
 
+import { Region } from "../service/wowapi";
+
 @Entity()
 export class Realm {
     @Generated()
@@ -10,7 +12,7 @@ export class Realm {
 
     @PrimaryColumn()
     // @ts-ignore
-    region: string;
+    region: Region;
 
     @PrimaryColumn()
     // @ts-ignore

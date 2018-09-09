@@ -69,7 +69,9 @@ export class Recipes {
                 value.recipe = recipe;
                 value.updated = now;
             } catch (error) {
-                console.debug("Recipes#updateRecipes", error);
+                if (!(error + "").includes("Invalid value \"REUSE ME")) {
+                    console.debug("Recipes#updateRecipes", error);
+                }
             }
         }
         writeFileSync(this.file, JSON.stringify(this.recipes));

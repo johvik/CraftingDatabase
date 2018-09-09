@@ -6,6 +6,8 @@ import { decodeOrThrow } from "../utils";
 
 export enum Region {
     EU = "eu",
+    KR = "kr",
+    TW = "tw",
     US = "us"
 }
 
@@ -51,10 +53,11 @@ const AuctionData = t.type({
 });
 
 export async function getAuctionData(expectedRealm: string, url: string): Promise<IAuctionItem[]> {
+    const expectedName = expectedRealm.toLowerCase();
     const body = await rp.get(url, { timeout: 5000 });
     const data = decodeOrThrow(AuctionData, JSON.parse(body));
     if (!data.realms.some(realm => {
-        return realm.name.toLowerCase() === expectedRealm.toLowerCase();
+        return realm.name.toLowerCase() === expectedName;
     })) {
         throw new Error("Realm not found " + expectedRealm);
     }
