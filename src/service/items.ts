@@ -28,12 +28,14 @@ type IItemInfos = t.TypeOf<typeof ItemInfos>;
 
 export class Items {
     private readonly file = "items.json";
+    private jsonCache = "{}";
     private items: IItemInfos = this.loadFromFile();
     private lastUpdatefailures = new Set<number>();
 
     private loadFromFile(): IItemInfos {
         try {
-            return decodeOrThrow(ItemInfos, JSON.parse(readFileSync(this.file).toString()));
+            this.jsonCache = readFileSync(this.file).toString();
+            return decodeOrThrow(ItemInfos, JSON.parse(this.jsonCache));
         } catch (error) {
             console.debug("Items#loadFromFile", error, new Date());
         }
@@ -93,6 +95,11 @@ export class Items {
             }
         }
         this.lastUpdatefailures = updateFailures;
-        writeFileSync(this.file, JSON.stringify(this.items));
+        this.jsonCache = JSON.stringify(this.items);
+        writeFileSync(this.file, this.jsonCache);
+    }
+
+    json() {
+        return this.jsonCache;
     }
 }

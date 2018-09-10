@@ -43,15 +43,21 @@ async function load(): Promise<Data> {
     return { recipes: recipes, auctions: auctions, items: items };
 }
 
-load().then((_) => {
+load().then((data) => {
     console.info("Loaded", new Date());
 
     const app = express();
     app.use(compression());
 
+    app.get("/recipes", (_, res) => res.type("json").send(data.recipes.json()));
+    app.get("/items", (_, res) => res.type("json").send(data.items.json()));
     app.get("/", (_, res) => res.send("Hello World!"));
 
+    // TODO Get auctions, only recipe items?
+
     app.listen(SERVER_PORT, () => console.info("Started", new Date()));
+
+    // TODO Schedule updates
 }).catch(error => {
     console.error("Error from start", error, new Date());
 });

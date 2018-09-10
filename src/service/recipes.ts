@@ -33,11 +33,13 @@ type IRecipeInfos = t.TypeOf<typeof RecipeInfos>;
 
 export class Recipes {
     private readonly file = "recipes.json";
+    private jsonCache = "{}";
     private recipes: IRecipeInfos = this.loadFromFile();
 
     private loadFromFile(): IRecipeInfos {
         try {
-            return decodeOrThrow(RecipeInfos, JSON.parse(readFileSync(this.file).toString()));
+            this.jsonCache = readFileSync(this.file).toString();
+            return decodeOrThrow(RecipeInfos, JSON.parse(this.jsonCache));
         } catch (error) {
             console.debug("Recipes#loadFromFile", error, new Date());
         }
@@ -73,7 +75,8 @@ export class Recipes {
                 }
             }
         }
-        writeFileSync(this.file, JSON.stringify(this.recipes));
+        this.jsonCache = JSON.stringify(this.recipes);
+        writeFileSync(this.file, this.jsonCache);
     }
 
     empty(): boolean {
@@ -96,5 +99,9 @@ export class Recipes {
             }
         }
         return items;
+    }
+
+    json() {
+        return this.jsonCache;
     }
 }
