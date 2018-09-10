@@ -39,7 +39,7 @@ export class Recipes {
         try {
             return decodeOrThrow(RecipeInfos, JSON.parse(readFileSync(this.file).toString()));
         } catch (error) {
-            console.debug("Recipes#loadFromFile", error);
+            console.debug("Recipes#loadFromFile", error, new Date());
         }
         return {};
     }
@@ -54,7 +54,7 @@ export class Recipes {
                 }
             }
         } catch (error) {
-            console.debug("Recipes#update", error);
+            console.debug("Recipes#update", error, new Date());
         }
         await this.updateRecipes();
     }
@@ -69,7 +69,7 @@ export class Recipes {
                 value.updated = now;
             } catch (error) {
                 if (!(error + "").includes("Invalid value \"REUSE ME")) {
-                    console.debug("Recipes#updateRecipes " + key, error);
+                    console.debug("Recipes#updateRecipes " + key, error, new Date());
                 }
             }
         }

@@ -69,7 +69,7 @@ export class Auctions {
             try {
                 await this.updateAuctionData(i);
             } catch (error) {
-                console.debug("Auctions#updateAll", error);
+                console.debug("Auctions#updateAll", error, new Date());
             }
         }
     }

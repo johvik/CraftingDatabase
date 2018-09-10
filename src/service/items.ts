@@ -35,7 +35,7 @@ export class Items {
         try {
             return decodeOrThrow(ItemInfos, JSON.parse(readFileSync(this.file).toString()));
         } catch (error) {
-            console.debug("Items#loadFromFile", error);
+            console.debug("Items#loadFromFile", error, new Date());
         }
         return {};
     }
@@ -78,7 +78,7 @@ export class Items {
                 value.updated = now;
             } catch (error) {
                 if (!this.lastUpdatefailures.has(id)) {
-                    console.debug("Items#updateItems " + id, error);
+                    console.debug("Items#updateItems " + id, error, new Date());
                 }
                 updateFailures.add(id);
             }
