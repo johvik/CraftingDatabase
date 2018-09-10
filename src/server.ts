@@ -27,7 +27,8 @@ async function start() {
         console.info("Using existing recipes");
     }
     console.info("Loading auctions");
-    await Auctions.updateAll();
+    const auctions = new Auctions();
+    await auctions.updateAll();
     console.info("Loading items");
     const items = new Items();
     await items.updateUnknown(recipes);

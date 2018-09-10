@@ -2,7 +2,7 @@ import { Region, getAuctionDataStatus, getItem } from "../../src/service/wowapi"
 
 describe("getAuctionDataStatus", () => {
     it("should get Draenor EU", async () => {
-        const files = await getAuctionDataStatus(Region.EU, "draenor");
+        const files = await getAuctionDataStatus({ region: Region.EU, name: "draenor" });
         expect(files).not.toHaveLength(0);
     });
 });

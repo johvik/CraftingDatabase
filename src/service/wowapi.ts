@@ -28,14 +28,19 @@ const AuctionFiles = t.type({
     files: t.refinement(t.array(AuctionFile), files => files.length > 0)
 });
 
-export async function getAuctionDataStatus(region: Region, realm: string): Promise<IAuctionFile[]> {
+type WowRealm = {
+    region: Region,
+    name: string
+};
+
+export async function getAuctionDataStatus(realm: WowRealm): Promise<IAuctionFile[]> {
     // {
     //     "files": [{
     //         "url": "http://auction-api-eu.worldofwarcraft.com/auction-data/e4a529d50fe9f24cff1ad0bf1c56c897/auctions.json",
     //         "lastModified": 1535890107000
     //     }]
     // }
-    const url = "https://" + region + ".api.battle.net/wow/auction/data/" + realm.toLowerCase() + "?apikey=" + WOW_API_KEY;
+    const url = "https://" + realm.region + ".api.battle.net/wow/auction/data/" + realm.name.toLowerCase() + "?apikey=" + WOW_API_KEY;
     const body = await rp.get(url, { timeout: 5000 });
 
     return decodeOrThrow(AuctionFiles, JSON.parse(body)).files;

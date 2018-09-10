@@ -5,6 +5,8 @@ import { Realm } from "../entity/Realm";
 import { Auction } from "../entity/Auction";
 
 export class Auctions {
+    private lastUpdates = new Map<number, Date>();
+
     static async storeRealm(region: Region, realm: string): Promise<number> {
         const name = realm.toLowerCase();
         const repository = getRepository(Realm);
@@ -36,32 +38,36 @@ export class Auctions {
         }
     }
 
-    private static async updateAuctionData(region: Region, realm: string) {
-        const status = await getAuctionDataStatus(region, realm);
-        const realmId = await Auctions.storeRealm(region, realm);
-        for (const i of status) {
-            const data = await getAuctionData(realm, i.url);
+    private async updateAuctionData(realm: Realm) {
+        const statusList = await getAuctionDataStatus(realm);
+        const lastUpdate = this.lastUpdates.get(realm.id);
+        const first = statusList[0];
+        if (!lastUpdate || lastUpdate.getTime() < first.lastModified.getDate()) {
+            for (const status of statusList) {
+                const data = await getAuctionData(realm.name, status.url);
 
-            // Merge items with the same id
-            const map = new Map<number, MergedValue[]>();
-            for (const i of data) {
-                const value = map.get(i.item);
-                const mergedValue = { value: i.buyout / i.quantity, count: i.quantity };
-                if (value) {
-                    value.push(mergedValue);
-                } else {
-                    map.set(i.item, [mergedValue]);
+                // Merge items with the same id
+                const map = new Map<number, MergedValue[]>();
+                for (const i of data) {
+                    const value = map.get(i.item);
+                    const mergedValue = { value: i.buyout / i.quantity, count: i.quantity };
+                    if (value) {
+                        value.push(mergedValue);
+                    } else {
+                        map.set(i.item, [mergedValue]);
+                    }
                 }
+                await Auctions.storeAuctionData(realm.id, map);
             }
-            await Auctions.storeAuctionData(realmId, map);
+            this.lastUpdates.set(realm.id, first.lastModified);
         }
     }
 
-    static async updateAll() {
+    async updateAll() {
         const realms = await getRepository(Realm).find();
         for (const i of realms) {
             try {
-                await Auctions.updateAuctionData(i.region, i.name);
+                await this.updateAuctionData(i);
             } catch (error) {
                 console.debug("Auctions#updateAll", error);
             }
