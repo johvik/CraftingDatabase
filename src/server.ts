@@ -8,6 +8,7 @@ import { Auction } from "./entity/Auction";
 import { Recipes } from "./service/recipes";
 import { Auctions } from "./service/auctions";
 import { Items } from "./service/items";
+import { CronJob } from "cron";
 
 type Data = {
     recipes: Recipes,
@@ -29,22 +30,15 @@ async function load(): Promise<Data> {
     });
     console.info("Loading recipes", new Date());
     const recipes = new Recipes();
-    if (recipes.empty()) {
-        await recipes.update();
-    } else {
-        console.info("Using existing recipes");
-    }
     console.info("Loading auctions", new Date());
     const auctions = new Auctions();
-    await auctions.updateAll();
     console.info("Loading items", new Date());
     const items = new Items();
-    await items.updateUnknown(recipes);
     return { recipes: recipes, auctions: auctions, items: items };
 }
 
-load().then((data) => {
-    console.info("Loaded", new Date());
+(async () => {
+    const data = await load();
 
     const app = express();
     app.use(compression());
@@ -55,9 +49,34 @@ load().then((data) => {
 
     // TODO Get auctions, only recipe items?
 
-    app.listen(SERVER_PORT, () => console.info("Started", new Date()));
+    app.listen(SERVER_PORT, () => console.info("Express started", new Date()));
 
-    // TODO Schedule updates
-}).catch(error => {
+    console.info("Starting initial update", new Date());
+    if (data.recipes.empty()) {
+        await data.recipes.update();
+    }
+    await data.auctions.updateAll();
+    await data.items.updateUnknown(data.recipes);
+
+    console.info("Starting jobs", new Date());
+    process.on("unhandledRejection", error => {
+        console.error("unhandledRejection", error);
+        process.exit(1);
+    });
+    new CronJob("00 00 02 * * *", async () => {
+        await data.recipes.update();
+    }).start();
+    new CronJob("00 00 03 * * 0", async () => {
+        await data.items.updateAll(data.recipes);
+    }).start();
+    new CronJob("00 00 03 * * 1-6", async () => {
+        await data.items.updateUnknown(data.recipes);
+    }).start();
+    new CronJob("00 */5 * * * *", async () => {
+        // TODO Check if previous job finished
+        await data.auctions.updateAll();
+    }).start();
+    console.info("Jobs started", new Date());
+})().catch(error => {
     console.error("Error from start", error, new Date());
 });
