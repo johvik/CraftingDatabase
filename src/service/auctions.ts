@@ -130,4 +130,14 @@ export class Auctions {
         }
         throw new Error("Auctions#json " + realmId + " not found");
     }
+
+    lastUpdate() {
+        return Array.from(this.lastUpdates.entries()).map(p => {
+            return {
+                id: p["0"],
+                lastAttempt: p["1"].lastAttempt,
+                lastModified: p["1"].lastModified
+            };
+        });
+    }
 }

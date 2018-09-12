@@ -52,11 +52,12 @@ async function load(): Promise<Data> {
     app.get("/auctions/:realmId(\\d+)", async (req, res) => {
         try {
             const auctions = await data.auctions.json(parseInt(req.params.realmId));
-            res.type("json").send(auctions);
+            return res.type("json").send(auctions);
         } catch (_) {
-            res.sendStatus(404);
+            return res.sendStatus(404);
         }
     });
+    app.get("/auctions/lastUpdate", async (_, res) => res.type("json").send(data.auctions.lastUpdate()));
 
     app.listen(SERVER_PORT, () => console.info("Express started", new Date()));
 
