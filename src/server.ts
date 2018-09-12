@@ -63,14 +63,14 @@ async function load(): Promise<Data> {
         console.error("unhandledRejection", error);
         process.exit(1);
     });
-    new CronJob("00 00 02 * * *", async () => {
+    new CronJob("00 30 02 * * *", async () => {
         await data.recipes.update();
-    }).start();
-    new CronJob("00 00 03 * * 0", async () => {
-        await data.items.updateAll(data.recipes);
-    }).start();
-    new CronJob("00 00 03 * * 1-6", async () => {
-        await data.items.updateUnknown(data.recipes);
+        if (new Date().getDay() === 0) {
+            // Full update once a week
+            await data.items.updateAll(data.recipes);
+        } else {
+            await data.items.updateUnknown(data.recipes);
+        }
     }).start();
     new CronJob("00 */5 * * * *", async () => {
         // TODO Check if previous job finished
