@@ -73,7 +73,6 @@ async function load(): Promise<Data> {
         }
     }).start();
     new CronJob("00 */5 * * * *", async () => {
-        // TODO Check if previous job finished
         await data.auctions.updateAll();
     }).start();
     console.info("Jobs started", new Date());

@@ -5,6 +5,7 @@ import { Realm } from "../entity/Realm";
 import { Auction } from "../entity/Auction";
 
 export class Auctions {
+    private updating = false;
     private lastUpdates = new Map<number, Date>();
     // TODO Cache data and last update and last update attempt
 
@@ -66,13 +67,19 @@ export class Auctions {
     }
 
     async updateAll() {
-        const realms = await getRepository(Realm).find();
-        for (const i of realms) {
-            try {
-                await this.updateAuctionData(i);
-            } catch (error) {
-                console.debug("Auctions#updateAll", error, new Date());
+        if (this.updating) {
+            console.log("Auctions#updateAll", "already updating", new Date());
+        } else {
+            this.updating = true;
+            const realms = await getRepository(Realm).find();
+            for (const i of realms) {
+                try {
+                    await this.updateAuctionData(i);
+                } catch (error) {
+                    console.debug("Auctions#updateAll", error, new Date());
+                }
             }
+            this.updating = false;
         }
     }
 
