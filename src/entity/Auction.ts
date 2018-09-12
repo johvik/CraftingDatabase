@@ -1,4 +1,4 @@
-import { Entity, PrimaryColumn, Column, UpdateDateColumn } from "typeorm";
+import { Entity, PrimaryColumn, Column } from "typeorm";
 
 @Entity()
 export class Auction {
@@ -27,7 +27,7 @@ export class Auction {
     // @ts-ignore
     quantity: number;
 
-    @UpdateDateColumn()
+    @Column()
     // @ts-ignore
     lastUpdate: Date;
 }

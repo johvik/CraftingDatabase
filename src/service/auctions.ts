@@ -6,6 +6,7 @@ import { Auction } from "../entity/Auction";
 
 export class Auctions {
     private lastUpdates = new Map<number, Date>();
+    // TODO Cache data and last update and last update attempt
 
     static async storeRealm(region: Region, realm: string): Promise<number> {
         const name = realm.toLowerCase();
@@ -18,7 +19,7 @@ export class Auctions {
         return (await repository.save(newRealm)).id;
     }
 
-    private static async storeAuctionData(realmId: number, data: Map<number, MergedValue[]>) {
+    private static async storeAuctionData(realmId: number, lastModified: Date, data: Map<number, MergedValue[]>) {
         const repository = getRepository(Auction);
         for (const [id, values] of data) {
             values.sort((a, b) => a.value - b.value);
@@ -32,7 +33,8 @@ export class Auctions {
                 lowestPrice: lowestPrice,
                 firstQuartile: quartile.first,
                 secondQuartile: quartile.second,
-                quantity: totalCount
+                quantity: totalCount,
+                lastUpdate: lastModified
             });
             await repository.save(auction);
         }
@@ -57,7 +59,7 @@ export class Auctions {
                         map.set(i.item, [mergedValue]);
                     }
                 }
-                await Auctions.storeAuctionData(realm.id, map);
+                await Auctions.storeAuctionData(realm.id, first.lastModified, map);
             }
             this.lastUpdates.set(realm.id, first.lastModified);
         }
