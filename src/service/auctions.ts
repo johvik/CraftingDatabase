@@ -4,10 +4,15 @@ import { Region, getAuctionDataStatus, getAuctionData } from "./wowapi";
 import { Realm } from "../entity/Realm";
 import { Auction } from "../entity/Auction";
 
+type LastUpdateInfo = {
+    lastAttempt: Date,
+    lastModified: Date,
+    cache: string
+};
+
 export class Auctions {
     private updating = false;
-    private lastUpdates = new Map<number, Date>();
-    // TODO Cache data and last update and last update attempt
+    private lastUpdates = new Map<number, LastUpdateInfo>();
 
     static async storeRealm(region: Region, realm: string): Promise<number> {
         const name = realm.toLowerCase();
@@ -45,7 +50,7 @@ export class Auctions {
         const statusList = await getAuctionDataStatus(realm);
         const lastUpdate = this.lastUpdates.get(realm.id);
         const first = statusList[0];
-        if (!lastUpdate || lastUpdate.getTime() < first.lastModified.getDate()) {
+        if (!lastUpdate || lastUpdate.lastModified.getTime() < first.lastModified.getDate()) {
             for (const status of statusList) {
                 const data = await getAuctionData(realm.name, status.url);
 
@@ -62,7 +67,13 @@ export class Auctions {
                 }
                 await Auctions.storeAuctionData(realm.id, first.lastModified, map);
             }
-            this.lastUpdates.set(realm.id, first.lastModified);
+            this.lastUpdates.set(realm.id, {
+                lastAttempt: new Date(),
+                lastModified: first.lastModified,
+                cache: ""
+            });
+        } else if (lastUpdate) {
+            lastUpdate.lastAttempt = new Date();
         }
     }
 
@@ -89,5 +100,34 @@ export class Auctions {
             .select("DISTINCT auction.id")
             .getRawMany();
         return new Set<number>(ids.map(id => id.id));
+    }
+
+    async json(realmId: number): Promise<string> {
+        // TODO Only get recipe items?
+        const lastUpdate = this.lastUpdates.get(realmId);
+        if (lastUpdate) {
+            if (lastUpdate.cache !== "") {
+                return lastUpdate.cache;
+            }
+
+            // Fetch auctions and save to cache
+            const auctions = await getRepository(Auction)
+                .createQueryBuilder("auction")
+                .select("auction.id", "id")
+                .addSelect("auction.lowestPrice", "lowestPrice")
+                .addSelect("auction.firstQuartile", "firstQuartile")
+                .addSelect("auction.secondQuartile", "secondQuartile")
+                .addSelect("auction.quantity", "quantity")
+                .addSelect("auction.lastUpdate", "lastUpdate")
+                .where("auction.realmId = :realmId", { realmId: realmId })
+                .getRawMany();
+
+            lastUpdate.cache = JSON.stringify({
+                lastModified: lastUpdate.lastModified,
+                auctions: auctions
+            });
+            return lastUpdate.cache;
+        }
+        throw new Error("Auctions#json " + realmId + " not found");
     }
 }

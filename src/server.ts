@@ -38,6 +38,10 @@ async function load(): Promise<Data> {
 }
 
 (async () => {
+    process.on("unhandledRejection", error => {
+        console.error("unhandledRejection", error);
+        process.exit(1);
+    });
     const data = await load();
 
     const app = express();
@@ -45,9 +49,14 @@ async function load(): Promise<Data> {
 
     app.get("/recipes", (_, res) => res.type("json").send(data.recipes.json()));
     app.get("/items", (_, res) => res.type("json").send(data.items.json()));
-    app.get("/", (_, res) => res.send("Hello World!"));
-
-    // TODO Get auctions, only recipe items?
+    app.get("/auctions/:realmId(\\d+)", async (req, res) => {
+        try {
+            const auctions = await data.auctions.json(parseInt(req.params.realmId));
+            res.type("json").send(auctions);
+        } catch (_) {
+            res.sendStatus(404);
+        }
+    });
 
     app.listen(SERVER_PORT, () => console.info("Express started", new Date()));
 
@@ -59,10 +68,6 @@ async function load(): Promise<Data> {
     await data.items.updateUnknown();
 
     console.info("Starting jobs", new Date());
-    process.on("unhandledRejection", error => {
-        console.error("unhandledRejection", error);
-        process.exit(1);
-    });
     new CronJob("00 30 02 * * *", async () => {
         await data.recipes.update();
         if (new Date().getDay() === 0) {
