@@ -33,7 +33,7 @@ async function load(): Promise<Data> {
     console.info("Loading auctions", new Date());
     const auctions = new Auctions();
     console.info("Loading items", new Date());
-    const items = new Items();
+    const items = new Items(recipes);
     return { recipes: recipes, auctions: auctions, items: items };
 }
 
@@ -56,7 +56,7 @@ async function load(): Promise<Data> {
         await data.recipes.update();
     }
     await data.auctions.updateAll();
-    await data.items.updateUnknown(data.recipes);
+    await data.items.updateUnknown();
 
     console.info("Starting jobs", new Date());
     process.on("unhandledRejection", error => {
@@ -67,9 +67,9 @@ async function load(): Promise<Data> {
         await data.recipes.update();
         if (new Date().getDay() === 0) {
             // Full update once a week
-            await data.items.updateAll(data.recipes);
+            await data.items.updateAll();
         } else {
-            await data.items.updateUnknown(data.recipes);
+            await data.items.updateUnknown();
         }
     }).start();
     new CronJob("00 */5 * * * *", async () => {

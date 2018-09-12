@@ -28,9 +28,14 @@ type IItemInfos = t.TypeOf<typeof ItemInfos>;
 
 export class Items {
     private readonly file = "items.json";
+    private readonly recipes: Recipes;
     private jsonCache = "{}";
     private items: IItemInfos = this.loadFromFile();
     private lastUpdatefailures = new Set<number>();
+
+    constructor(recipes: Recipes) {
+        this.recipes = recipes;
+    }
 
     private loadFromFile(): IItemInfos {
         try {
@@ -42,16 +47,16 @@ export class Items {
         return {};
     }
 
-    async updateAll(recipes: Recipes) {
-        return this.update(recipes, true);
+    async updateAll() {
+        return this.update(true);
     }
 
-    async updateUnknown(recipes: Recipes) {
-        return this.update(recipes, false);
+    async updateUnknown() {
+        return this.update(false);
     }
 
-    private async update(recipes: Recipes, updateAll: boolean) {
-        const ids = new Set<number>([...recipes.items(), ...await Auctions.items()]);
+    private async update(updateAll: boolean) {
+        const ids = new Set<number>([...this.recipes.items(), ...await Auctions.items()]);
         const never = new Date(0);
         for (const id of ids) {
             if (!this.items[id]) {
