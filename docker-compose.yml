@@ -1,0 +1,49 @@
+version: "3.4"
+
+volumes:
+  app:
+    driver: local
+  mysql:
+    driver: local
+  backup:
+    driver: local
+
+services:
+  web:
+    build: .
+    command: sh -c "sleep 5 && npm start"
+    restart: always
+    ports:
+      - "3000:3000"
+    image: crafting-database
+    depends_on:
+      - db
+    environment:
+      - SERVER_PORT=3000
+      - WOW_API_KEY=${WOW_API_KEY}
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_USERNAME=cdb
+      - DB_PASSWORD=craftingdatabase
+      - DB_DATABASE=cdb
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/auctions/lastUpdate"]
+      start_period: 30s
+    volumes:
+      - app:/app
+  db:
+    image: webhippie/mariadb:latest
+    restart: always
+    environment:
+      - MARIADB_ROOT_PASSWORD=craftingdatabase
+      - MARIADB_USERNAME=cdb
+      - MARIADB_PASSWORD=craftingdatabase
+      - MARIADB_DATABASE=cdb
+    healthcheck:
+      test: ["CMD", "/usr/bin/healthcheck"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    volumes:
+      - mysql:/var/lib/mysql
+      - backup:/var/lib/backup
