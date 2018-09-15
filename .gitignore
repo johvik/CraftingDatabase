@@ -4,3 +4,4 @@ dist/**/*
 node_modules
 items.json
 recipes.json
+*.pem

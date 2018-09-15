@@ -1,7 +1,7 @@
 FROM node:8.12.0-alpine
 EXPOSE 3000
 WORKDIR /app
-COPY *.json ./
+COPY *.json *.pem ./
 COPY src src
 RUN npm install && \
     npm run build && \

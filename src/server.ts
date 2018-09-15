@@ -9,6 +9,8 @@ import { Recipes } from "./service/recipes";
 import { Auctions } from "./service/auctions";
 import { Items } from "./service/items";
 import { CronJob } from "cron";
+import { readFileSync } from "fs";
+import { createServer } from "https";
 
 type Data = {
     recipes: Recipes,
@@ -59,7 +61,11 @@ async function load(): Promise<Data> {
     });
     app.get("/auctions/lastUpdate", async (_, res) => res.type("json").send(data.auctions.lastUpdate()));
 
-    app.listen(SERVER_PORT, () => console.info("Express started", new Date()));
+    const options = {
+        key: readFileSync("key.pem"),
+        cert: readFileSync("certificate.pem")
+    };
+    createServer(options, app).listen(SERVER_PORT, () => console.info("Express started", new Date()));
 
     console.info("Starting initial update", new Date());
     if (data.recipes.empty()) {
