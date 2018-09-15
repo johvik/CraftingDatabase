@@ -9,8 +9,8 @@
     "url": "https://github.com/johvik/CraftingDatabase"
   },
   "scripts": {
-    "start": "node dist/src/server.js",
-    "build": "rimraf dist/ && tsc && tslint -c tslint.json -p tsconfig.json && rimraf dist/test/",
+    "start": "node dist/server.js",
+    "build": "rimraf dist/ dist.tmp/ && tsc && tslint -c tslint.json -p tsconfig.json && rimraf dist/test/ && move-cli dist/src dist.tmp && rimraf dist/ && move-cli dist.tmp dist",
     "test": "jest --coverage --verbose"
   },
   "devDependencies": {
@@ -23,6 +23,7 @@
     "@types/node": "^10.9.4",
     "@types/request-promise-native": "^1.0.15",
     "jest": "^23.5.0",
+    "move-cli": "^1.2.0",
     "rimraf": "^2.6.2",
     "ts-jest": "^23.1.4",
     "tslint": "^5.11.0",

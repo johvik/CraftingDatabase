@@ -11,6 +11,7 @@ import { Items } from "./service/items";
 import { CronJob } from "cron";
 import { readFileSync } from "fs";
 import { createServer } from "https";
+import path from "path";
 
 type Data = {
     recipes: Recipes,
@@ -60,6 +61,7 @@ async function load(): Promise<Data> {
         }
     });
     app.get("/auctions/lastUpdate", async (_, res) => res.type("json").send(data.auctions.lastUpdate()));
+    app.use(express.static(path.join(__dirname, "..", "static")));
 
     const options = {
         key: readFileSync("key.pem"),
