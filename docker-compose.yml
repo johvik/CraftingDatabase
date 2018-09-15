@@ -24,7 +24,7 @@ services:
       - DB_HOST=db
       - DB_PORT=3306
       - DB_USERNAME=cdb
-      - DB_PASSWORD=craftingdatabase
+      - DB_PASSWORD=${DB_PASSWORD}
       - DB_DATABASE=cdb
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/auctions/lastUpdate"]
@@ -35,9 +35,9 @@ services:
     image: webhippie/mariadb:latest
     restart: always
     environment:
-      - MARIADB_ROOT_PASSWORD=craftingdatabase
+      - MARIADB_ROOT_PASSWORD=${DB_PASSWORD}
       - MARIADB_USERNAME=cdb
-      - MARIADB_PASSWORD=craftingdatabase
+      - MARIADB_PASSWORD=${DB_PASSWORD}
       - MARIADB_DATABASE=cdb
     healthcheck:
       test: ["CMD", "/usr/bin/healthcheck"]
