@@ -27,7 +27,7 @@ services:
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_DATABASE=cdb
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/auctions/lastUpdate"]
+      test: ["CMD", "curl", "-fk", "https://localhost:3000/auctions/lastUpdate"]
       start_period: 30s
     volumes:
       - app:/app
