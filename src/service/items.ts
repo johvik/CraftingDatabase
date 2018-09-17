@@ -5,6 +5,7 @@ import { readFileSync, writeFileSync } from "fs";
 import { getItem, Quotas } from "./wowapi";
 import { Recipes } from "./recipes";
 import { Auctions } from "./auctions";
+import path from "path";
 
 const Item = t.type({
     name: t.string,
@@ -27,7 +28,7 @@ const ItemInfos = t.dictionary(t.refinement(t.string, key => /^\d+$/.test(key)),
 type IItemInfos = t.TypeOf<typeof ItemInfos>;
 
 export class Items {
-    private readonly file = "items.json";
+    private readonly file = path.join(__dirname, "..", "..", "items.json");
     private readonly recipes: Recipes;
     private jsonCache = "{}";
     private items: IItemInfos = this.loadFromFile();

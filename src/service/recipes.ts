@@ -3,6 +3,7 @@ import { readFileSync, writeFileSync } from "fs";
 import { DateFromISOString } from "io-ts-types/lib/Date/DateFromISOString";
 import { getRecipesIds, getRecipe } from "./wowdb";
 import { decodeOrThrow } from "../utils";
+import path from "path";
 
 const Item = t.type({
     id: t.number,
@@ -32,7 +33,7 @@ const RecipeInfos = t.dictionary(t.refinement(t.string, key => /^\d+$/.test(key)
 type IRecipeInfos = t.TypeOf<typeof RecipeInfos>;
 
 export class Recipes {
-    private readonly file = "recipes.json";
+    private readonly file = path.join(__dirname, "..", "..", "recipes.json");
     private jsonCache = "{}";
     private recipes: IRecipeInfos = this.loadFromFile();
 

@@ -64,8 +64,8 @@ async function load(): Promise<Data> {
     app.use(express.static(path.join(__dirname, "..", "static")));
 
     const options = {
-        key: readFileSync("key.pem"),
-        cert: readFileSync("certificate.pem")
+        key: readFileSync(path.join(__dirname, "..", "key.pem")),
+        cert: readFileSync(path.join(__dirname, "..", "certificate.pem"))
     };
     createServer(options, app).listen(SERVER_PORT, () => console.info("Express started", new Date()));
 
