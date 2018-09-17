@@ -57,12 +57,14 @@ export class Auctions {
                 // Merge items with the same id
                 const map = new Map<number, MergedValue[]>();
                 for (const i of data) {
-                    const value = map.get(i.item);
-                    const mergedValue = { value: i.buyout / i.quantity, count: i.quantity };
-                    if (value) {
-                        value.push(mergedValue);
-                    } else {
-                        map.set(i.item, [mergedValue]);
+                    if (i.buyout !== 0) { // Skip items without a buyout
+                        const value = map.get(i.item);
+                        const mergedValue = { value: i.buyout / i.quantity, count: i.quantity };
+                        if (value) {
+                            value.push(mergedValue);
+                        } else {
+                            map.set(i.item, [mergedValue]);
+                        }
                     }
                 }
                 await Auctions.storeAuctionData(realm.id, first.lastModified, map);
