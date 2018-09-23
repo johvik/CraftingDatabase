@@ -15,7 +15,5 @@ RUN npm install && \
     npm install && \
     npm run build && \
     cd .. && \
-    mkdir static && \
-    cp CraftingProfitWeb/index.html static/ && \
-    cp -r CraftingProfitWeb/dist static/ && \
+    cp -r CraftingProfitWeb/dist/ static/ && \
     rm -rf CraftingProfitWeb
