@@ -50,7 +50,7 @@ export class Auctions {
         const statusList = await getAuctionDataStatus(realm);
         const lastUpdate = this.lastUpdates.get(realm.id);
         const first = statusList[0];
-        if (!lastUpdate || lastUpdate.lastModified.getTime() < first.lastModified.getDate()) {
+        if (!lastUpdate || lastUpdate.lastModified.getTime() < first.lastModified.getTime()) {
             for (const status of statusList) {
                 const data = await getAuctionData(realm.name, status.url);
 
