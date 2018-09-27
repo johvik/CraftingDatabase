@@ -5,21 +5,14 @@ import compression from "compression";
 import { DB_HOST, DB_PORT, DB_USERNAME, DB_PASSWORD, DB_DATABASE, SERVER_PORT } from "./secrets";
 import { Realm } from "./entity/Realm";
 import { Auction } from "./entity/Auction";
-import { Recipes } from "./service/recipes";
 import { Auctions } from "./service/auctions";
-import { Items } from "./service/items";
 import { CronJob } from "cron";
 import { readFileSync } from "fs";
 import { createServer } from "https";
 import path from "path";
+import { Data } from "./service/data";
 
-type Data = {
-    recipes: Recipes,
-    auctions: Auctions,
-    items: Items
-};
-
-async function load(): Promise<Data> {
+async function load() {
     await createConnection({
         type: "mysql",
         host: DB_HOST,
@@ -31,13 +24,11 @@ async function load(): Promise<Data> {
         synchronize: true,
         logging: false
     });
-    console.info("Loading recipes", new Date());
-    const recipes = new Recipes();
+    console.info("Loading data", new Date());
+    const data = new Data();
     console.info("Loading auctions", new Date());
     const auctions = new Auctions();
-    console.info("Loading items", new Date());
-    const items = new Items(recipes);
-    return { recipes: recipes, auctions: auctions, items: items };
+    return { data: data, auctions: auctions };
 }
 
 (async () => {
@@ -50,8 +41,7 @@ async function load(): Promise<Data> {
     const app = express();
     app.use(compression());
 
-    app.get("/recipes", (_, res) => res.type("json").send(data.recipes.json()));
-    app.get("/items", (_, res) => res.type("json").send(data.items.json()));
+    app.get("/data", (_, res) => res.type("json").send(data.data.json()));
     app.get("/auctions/:realmId(\\d+)", async (req, res) => {
         try {
             const auctions = await data.auctions.json(parseInt(req.params.realmId));
@@ -70,21 +60,12 @@ async function load(): Promise<Data> {
     createServer(options, app).listen(SERVER_PORT, () => console.info("Express started", new Date()));
 
     console.info("Starting initial update", new Date());
-    if (data.recipes.empty()) {
-        await data.recipes.update();
-    }
+    await data.data.update();
     await data.auctions.updateAll();
-    await data.items.updateUnknown();
 
     console.info("Starting jobs", new Date());
     new CronJob("00 30 02 * * *", async () => {
-        await data.recipes.update();
-        if (new Date().getDay() === 0) {
-            // Full update once a week
-            await data.items.updateAll();
-        } else {
-            await data.items.updateUnknown();
-        }
+        await data.data.update();
     }).start();
     new CronJob("00 */5 * * * *", async () => {
         await data.auctions.updateAll();

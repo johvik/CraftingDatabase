@@ -3,7 +3,6 @@ coverage
 dist/**/*
 dist.tmp/**/*
 node_modules
-items.json
-recipes.json
+data.json
 static/
 *.pem

@@ -2,7 +2,6 @@ import rp from "request-promise-native";
 import * as t from "io-ts";
 import { JSDOM } from "jsdom";
 import { decodeOrThrow } from "../utils";
-import { IRecipe } from "./recipes";
 
 type RecipiesParseResult = { spellIds: number[], next: boolean };
 
@@ -68,7 +67,7 @@ const Spell = t.type({
     Effects: t.refinement(t.array(Effect), effects => effects.length === 1)
 });
 
-export async function getRecipe(spellId: number): Promise<IRecipe> {
+export async function getRecipe(spellId: number) {
     const body = await rp.get("https://www.wowdb.com/api/spell/" + spellId, { timeout: 5000 });
     // Remove the extra parentheses in the body
     const spell = decodeOrThrow(Spell, JSON.parse(body.slice(1, -1)));

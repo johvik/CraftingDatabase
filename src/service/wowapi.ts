@@ -3,7 +3,6 @@ import * as t from "io-ts";
 import { DateFromNumber } from "io-ts-types/lib/Date/DateFromNumber";
 import { WOW_API_KEY } from "../secrets";
 import { decodeOrThrow } from "../utils";
-import { IItem } from "./items";
 
 export class Quotas {
     static readonly requestsPerHour = 36000;
@@ -82,7 +81,7 @@ const Item = t.type({
     stackable: t.number
 });
 
-export async function getItem(itemId: number): Promise<IItem> {
+export async function getItem(itemId: number) {
     const url = "https://eu.api.battle.net/wow/item/" + itemId + "?apikey=" + WOW_API_KEY;
     const body = await rp.get(url, { timeout: 5000 });
     const item = decodeOrThrow(Item, JSON.parse(body));

@@ -1,6 +1,10 @@
 import * as t from "io-ts";
 import { failure } from "io-ts/lib/PathReporter";
 
+export function NeverUndefined<T>(item: T | undefined): T {
+    return item as T;
+}
+
 export function decodeOrThrow<A, O>(type: t.Type<A,
     O>, value: t.mixed): A {
     return type.decode(value).getOrElseL(errors => {
