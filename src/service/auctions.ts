@@ -27,6 +27,7 @@ export class Auctions {
 
     private static async storeAuctionData(realmId: number, lastModified: Date, data: Map<number, MergedValue[]>) {
         const repository = getRepository(Auction);
+        const auctions: Auction[] = [];
         for (const [id, values] of data) {
             values.sort((a, b) => a.value - b.value);
             const lowestPrice = values[0].value;
@@ -42,8 +43,9 @@ export class Auctions {
                 quantity: totalCount,
                 lastUpdate: lastModified
             });
-            await repository.save(auction);
+            auctions.push(auction);
         }
+        await repository.save(auctions, { chunk: Math.max(1, Math.ceil(auctions.length / 1000)) });
     }
 
     private async updateAuctionData(realm: Realm) {
