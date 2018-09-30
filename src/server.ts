@@ -67,7 +67,7 @@ async function load() {
     new CronJob("00 30 02 * * *", async () => {
         await data.data.update();
     }).start();
-    new CronJob("00 */5 * * * *", async () => {
+    new CronJob("00 */2 * * * *", async () => {
         await data.auctions.updateAll();
     }).start();
     console.info("Jobs started", new Date());
