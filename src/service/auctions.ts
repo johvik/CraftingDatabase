@@ -98,6 +98,18 @@ export class Auctions {
         }
     }
 
+    async deleteOld() {
+        try {
+            await getRepository(Auction)
+                .createQueryBuilder()
+                .delete()
+                .where("lastUpdate < :date", { date: new Date(new Date().getTime() - (7 * 24 * 60 * 60 * 1000)) })
+                .execute();
+        } catch (error) {
+            console.debug("Auctions#deleteOld", error, new Date());
+        }
+    }
+
     async json(realmId: number): Promise<string> {
         // TODO Only get recipe items?
         const lastUpdate = this.lastUpdates.get(realmId);
@@ -116,6 +128,7 @@ export class Auctions {
                 .addSelect("auction.quantity", "quantity")
                 .addSelect("auction.lastUpdate", "lastUpdate")
                 .where("auction.realmId = :realmId", { realmId: realmId })
+                .orderBy("lastUpdate", "DESC")
                 .getRawMany();
 
             lastUpdate.cache = JSON.stringify({

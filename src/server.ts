@@ -61,10 +61,12 @@ async function load() {
 
     console.info("Starting initial update", new Date());
     await data.data.update();
+    await data.auctions.deleteOld();
     await data.auctions.updateAll();
 
     console.info("Starting jobs", new Date());
     new CronJob("00 30 02 * * *", async () => {
+        await data.auctions.deleteOld();
         await data.data.update();
     }).start();
     new CronJob("00 */2 * * * *", async () => {

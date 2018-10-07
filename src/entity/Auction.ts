@@ -27,7 +27,7 @@ export class Auction {
     // @ts-ignore
     quantity: number;
 
-    @Column()
+    @PrimaryColumn()
     // @ts-ignore
     lastUpdate: Date;
 }
