@@ -128,7 +128,7 @@ export class Auctions {
                 .addSelect("auction.quantity", "quantity")
                 .addSelect("auction.lastUpdate", "lastUpdate")
                 .where("auction.realmId = :realmId", { realmId: realmId })
-                .orderBy("lastUpdate", "DESC")
+                .orderBy("lastUpdate", "ASC")
                 .getRawMany();
 
             lastUpdate.cache = JSON.stringify({
