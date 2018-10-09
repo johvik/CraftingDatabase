@@ -3,6 +3,7 @@ import { getRepository } from "typeorm";
 import { Region, getAuctionDataStatus, getAuctionData } from "./wowapi";
 import { Realm } from "../entity/Realm";
 import { Auction } from "../entity/Auction";
+import { Data } from "./data";
 
 type LastUpdateInfo = {
     lastAttempt: Date,
@@ -110,8 +111,7 @@ export class Auctions {
         }
     }
 
-    async json(realmId: number): Promise<string> {
-        // TODO Only get recipe items?
+    async json(realmId: number, data: Data): Promise<string> {
         const lastUpdate = this.lastUpdates.get(realmId);
         if (lastUpdate) {
             if (lastUpdate.cache !== "") {
@@ -128,6 +128,7 @@ export class Auctions {
                 .addSelect("auction.quantity", "quantity")
                 .addSelect("auction.lastUpdate", "lastUpdate")
                 .where("auction.realmId = :realmId", { realmId: realmId })
+                .andWhere("auction.id IN (:itemIds)", { itemIds: [...data.itemIds()] })
                 .orderBy("lastUpdate", "ASC")
                 .getRawMany();
 

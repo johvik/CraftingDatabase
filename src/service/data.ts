@@ -119,6 +119,20 @@ export class Data {
         writeFileSync(this.file, this.jsonCache);
     }
 
+    itemIds() {
+        const itemIds = new Set<number>();
+        for (const i in this.data.recipes) {
+            const recipe = NeverUndefined(this.data.recipes[i]);
+            if (recipe.crafts && recipe.crafts.id !== 0) {
+                itemIds.add(recipe.crafts.id);
+            }
+            for (const reagent of recipe.reagents) {
+                itemIds.add(reagent.id);
+            }
+        }
+        return itemIds;
+    }
+
     json() {
         return this.jsonCache;
     }

@@ -44,7 +44,7 @@ async function load() {
     app.get("/data", (_, res) => res.type("json").send(data.data.json()));
     app.get("/auctions/:realmId(\\d+)", async (req, res) => {
         try {
-            const auctions = await data.auctions.json(parseInt(req.params.realmId));
+            const auctions = await data.auctions.json(parseInt(req.params.realmId), data.data);
             return res.type("json").send(auctions);
         } catch (_) {
             return res.sendStatus(404);
@@ -75,4 +75,5 @@ async function load() {
     console.info("Jobs started", new Date());
 })().catch(error => {
     console.error("Error from start", error, new Date());
+    process.exit(1);
 });
