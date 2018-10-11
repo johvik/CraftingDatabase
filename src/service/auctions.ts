@@ -42,12 +42,20 @@ export class Auctions {
             const lowestPrice = values[0].value;
             const totalCount = getTotalCount(values);
             const quartile = getQuartile(values, totalCount);
+
             const irq = quartile.third - quartile.first;
-            const lowerFence = quartile.first - (1.5 * irq);
-            const firstNormal = values.find((value) => {
-                return value.value >= lowerFence;
+            const farOutLowerFence = quartile.first - (3 * irq);
+            const firstNonFarOut = values.find((value) => {
+                return value.value >= farOutLowerFence;
             });
-            const normalPrice = firstNormal ? firstNormal.value : lowestPrice;
+            const outlierLowerFence = quartile.first - (1.5 * irq);
+            const firstNonOutlier = values.find((value) => {
+                return value.value >= outlierLowerFence;
+            });
+
+            const farOutPrice = firstNonFarOut ? firstNonFarOut.value : lowestPrice;
+            const outlierPrice = firstNonOutlier ? firstNonOutlier.value : lowestPrice;
+
             const meanPrice = values.reduce((sum, value) => {
                 return sum + (value.value * value.count);
             }, 0) / totalCount;
@@ -59,7 +67,8 @@ export class Auctions {
                 lastUpdate: lastModified,
                 quantity: totalCount,
                 lowest: lowestPrice,
-                normal: normalPrice,
+                farOut: farOutPrice,
+                outlier: outlierPrice,
                 standardDeviation: standardDeviation,
                 mean: meanPrice,
                 firstQuartile: quartile.first,

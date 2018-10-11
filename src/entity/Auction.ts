@@ -31,7 +31,11 @@ export class Auction {
 
     @Column("bigint")
     // @ts-ignore
-    normal: number; // Lowest price that is not an outlier
+    farOut: number; // Lowest price that is not "far out"
+
+    @Column("bigint")
+    // @ts-ignore
+    outlier: number; // Lowest price that is not an outlier
 
     @Column("bigint")
     // @ts-ignore
