@@ -17,11 +17,19 @@ export class Auction {
 
     @Column("bigint")
     // @ts-ignore
+    normalPrice: number; // Lowest price that is not an outlier
+
+    @Column("bigint")
+    // @ts-ignore
     firstQuartile: number;
 
     @Column("bigint")
     // @ts-ignore
     secondQuartile: number; // Same as median
+
+    @Column("bigint")
+    // @ts-ignore
+    thirdQuartile: number;
 
     @Column()
     // @ts-ignore

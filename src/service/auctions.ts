@@ -34,13 +34,21 @@ export class Auctions {
             const lowestPrice = values[0].value;
             const totalCount = getTotalCount(values);
             const quartile = getQuartile(values, totalCount);
+            const irq = quartile.third - quartile.first;
+            const lowerFence = quartile.first - (1.5 * irq);
+            const firstNormal = values.find((value) => {
+                return value.value >= lowerFence;
+            });
+            const normalPrice = firstNormal ? firstNormal.value : lowestPrice;
 
             const auction = repository.create({
                 realmId: realmId,
                 id: id,
                 lowestPrice: lowestPrice,
+                normalPrice: normalPrice,
                 firstQuartile: quartile.first,
                 secondQuartile: quartile.second,
+                thirdQuartile: quartile.third,
                 quantity: totalCount,
                 lastUpdate: lastModified
             });
