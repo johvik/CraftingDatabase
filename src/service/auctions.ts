@@ -26,6 +26,14 @@ export class Auctions {
         return (await repository.save(newRealm)).id;
     }
 
+    private static standardDeviation(values: MergedValue[], mean: number, totalCount: number): number {
+        const variance = values.reduce((sum, value) => {
+            const diff = value.value - mean;
+            return sum + ((diff * diff) * value.count);
+        }, 0) / totalCount;
+        return Math.sqrt(variance);
+    }
+
     private static async storeAuctionData(realmId: number, lastModified: Date, data: Map<number, MergedValue[]>) {
         const repository = getRepository(Auction);
         const auctions: Auction[] = [];
@@ -40,17 +48,23 @@ export class Auctions {
                 return value.value >= lowerFence;
             });
             const normalPrice = firstNormal ? firstNormal.value : lowestPrice;
+            const meanPrice = values.reduce((sum, value) => {
+                return sum + (value.value * value.count);
+            }, 0) / totalCount;
+            const standardDeviation = this.standardDeviation(values, meanPrice, totalCount);
 
             const auction = repository.create({
                 realmId: realmId,
                 id: id,
-                lowestPrice: lowestPrice,
-                normalPrice: normalPrice,
+                lastUpdate: lastModified,
+                quantity: totalCount,
+                lowest: lowestPrice,
+                normal: normalPrice,
+                standardDeviation: standardDeviation,
+                mean: meanPrice,
                 firstQuartile: quartile.first,
                 secondQuartile: quartile.second,
                 thirdQuartile: quartile.third,
-                quantity: totalCount,
-                lastUpdate: lastModified
             });
             auctions.push(auction);
         }
@@ -130,11 +144,11 @@ export class Auctions {
             const auctions = await getRepository(Auction)
                 .createQueryBuilder("auction")
                 .select("auction.id", "id")
-                .addSelect("auction.lowestPrice", "lowestPrice")
-                .addSelect("auction.firstQuartile", "firstQuartile")
-                .addSelect("auction.secondQuartile", "secondQuartile")
                 .addSelect("auction.quantity", "quantity")
                 .addSelect("auction.lastUpdate", "lastUpdate")
+                .addSelect("auction.lowest", "lowest")
+                .addSelect("auction.firstQuartile", "firstQuartile")
+                .addSelect("auction.secondQuartile", "secondQuartile")
                 .where("auction.realmId = :realmId", { realmId: realmId })
                 .andWhere("auction.id IN (:itemIds)", { itemIds: [...data.itemIds()] })
                 .orderBy("lastUpdate", "ASC")

@@ -11,13 +11,31 @@ export class Auction {
     // @ts-ignore
     id: number;
 
-    @Column("bigint")
+    @PrimaryColumn()
     // @ts-ignore
-    lowestPrice: number;
+    lastUpdate: Date;
+
+    @Column()
+    // @ts-ignore
+    quantity: number;
+
+    /*
+     * All columns below are price information
+     *
+     * Assuming that +-1 copper is not interesting in the stats, so the numbers are stored as whole integers
+     */
 
     @Column("bigint")
     // @ts-ignore
-    normalPrice: number; // Lowest price that is not an outlier
+    lowest: number;
+
+    @Column("bigint")
+    // @ts-ignore
+    normal: number; // Lowest price that is not an outlier
+
+    @Column("bigint")
+    // @ts-ignore
+    mean: number;
 
     @Column("bigint")
     // @ts-ignore
@@ -31,11 +49,7 @@ export class Auction {
     // @ts-ignore
     thirdQuartile: number;
 
-    @Column()
+    @Column("bigint")
     // @ts-ignore
-    quantity: number;
-
-    @PrimaryColumn()
-    // @ts-ignore
-    lastUpdate: Date;
+    standardDeviation: number;
 }
