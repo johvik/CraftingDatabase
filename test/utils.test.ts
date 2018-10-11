@@ -52,7 +52,7 @@ describe("getQuartile", () => {
     it("should handle one item", () => {
         const values = [{ value: 42, count: 1 }];
         const quartile = getQuartile(values, getTotalCount(values));
-        expect(quartile).toEqual({ first: 42, second: 42 });
+        expect(quartile).toEqual({ first: 42, second: 42, third: 42 });
     });
 
     it("should handle even number of items", () => {
@@ -69,7 +69,7 @@ describe("getQuartile", () => {
             { value: 20, count: 1 }];
         const quartile = getQuartile(values, getTotalCount(values));
         // TODO Second should really be 9 here (8+10)/2
-        expect(quartile).toEqual({ first: 7, second: 8 });
+        expect(quartile).toEqual({ first: 7, second: 8, third: 15 });
     });
 
     it("should handle odd number of items", () => {
@@ -86,13 +86,13 @@ describe("getQuartile", () => {
             { value: 16, count: 1 },
             { value: 20, count: 1 }];
         const quartile = getQuartile(values, getTotalCount(values));
-        expect(quartile).toEqual({ first: 7, second: 9 });
+        expect(quartile).toEqual({ first: 7, second: 9, third: 15 });
     });
 
     it("should handle one item with count > 1", () => {
         const values = [{ value: 42, count: 95 }];
         const quartile = getQuartile(values, getTotalCount(values));
-        expect(quartile).toEqual({ first: 42, second: 42 });
+        expect(quartile).toEqual({ first: 42, second: 42, third: 42 });
     });
 
     it("should handle two items with count > 1", () => {
@@ -100,7 +100,7 @@ describe("getQuartile", () => {
             { value: 3, count: 1 },
             { value: 20, count: 4 }];
         const quartile = getQuartile(values, getTotalCount(values));
-        expect(quartile).toEqual({ first: 20, second: 20 });
+        expect(quartile).toEqual({ first: 20, second: 20, third: 20 });
     });
 
     it("should handle items with count > 1", () => {
@@ -111,7 +111,7 @@ describe("getQuartile", () => {
             { value: 8, count: 2 },
             { value: 20, count: 3 }];
         const quartile = getQuartile(values, getTotalCount(values));
-        expect(quartile).toEqual({ first: 6, second: 8 });
+        expect(quartile).toEqual({ first: 6, second: 8, third: 20 });
     });
 });
 

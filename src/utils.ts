@@ -25,6 +25,7 @@ export function getQuartile(values: MergedValue[], totalCount: number) {
     // Assumes sorted input
     const first = totalCount / 4;
     const second = totalCount / 2;
+    const third = (3 * totalCount) / 4;
     let sum = 0;
     let i = 0;
     for (; sum < first; i++) {
@@ -37,9 +38,15 @@ export function getQuartile(values: MergedValue[], totalCount: number) {
     }
     const secondQuartile = values[i - 1].value;
 
+    for (; sum < third; i++) {
+        sum += values[i].count;
+    }
+    const thirdQuartile = values[i - 1].value;
+
     return {
         first: firstQuartile,
-        second: secondQuartile
+        second: secondQuartile,
+        third: thirdQuartile
     };
 }
 
