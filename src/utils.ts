@@ -50,6 +50,20 @@ export function getQuartile(values: MergedValue[], totalCount: number) {
     };
 }
 
+export function getMean(values: MergedValue[], totalCount: number): number {
+    return values.reduce((sum, value) => {
+        return sum + (value.value * value.count);
+    }, 0) / totalCount;
+}
+
+export function getStandardDeviation(values: MergedValue[], mean: number, totalCount: number): number {
+    const variance = values.reduce((sum, value) => {
+        const diff = value.value - mean;
+        return sum + ((diff * diff) * value.count);
+    }, 0) / totalCount;
+    return Math.sqrt(variance);
+}
+
 export async function delay(milliseconds: number): Promise<void> {
     if (milliseconds > 0) {
         return new Promise<void>(resolve => setTimeout(resolve, milliseconds));

@@ -1,4 +1,4 @@
-import { decodeOrThrow, MergedValue, getQuartile, getTotalCount, delay } from "../src/utils";
+import { decodeOrThrow, MergedValue, getQuartile, getTotalCount, delay, getStandardDeviation, getMean } from "../src/utils";
 import * as t from "io-ts";
 
 describe("decodeOrThrow", () => {
@@ -112,6 +112,38 @@ describe("getQuartile", () => {
             { value: 20, count: 3 }];
         const quartile = getQuartile(values, getTotalCount(values));
         expect(quartile).toEqual({ first: 6, second: 8, third: 20 });
+    });
+});
+
+describe("getMean", () => {
+    it("should work", () => {
+        const values = [
+            { value: 4, count: 1 },
+            { value: 36, count: 1 },
+            { value: 45, count: 1 },
+            { value: 50, count: 1 },
+            { value: 75, count: 1 }];
+        const totalCount = getTotalCount(values);
+        const mean = getMean(values, totalCount);
+        expect(mean).toEqual(42);
+    });
+});
+
+describe("getStandardDeviation", () => {
+    it("should work", () => {
+        const values = [
+            { value: 2, count: 1 },
+            { value: 4, count: 1 },
+            { value: 4, count: 1 },
+            { value: 4, count: 1 },
+            { value: 5, count: 1 },
+            { value: 5, count: 1 },
+            { value: 7, count: 1 },
+            { value: 9, count: 1 }];
+        const totalCount = getTotalCount(values);
+        const mean = getMean(values, totalCount);
+        const standardDeviation = getStandardDeviation(values, mean, totalCount);
+        expect(standardDeviation).toEqual(2);
     });
 });
 

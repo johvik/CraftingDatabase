@@ -1,4 +1,4 @@
-import { MergedValue, getTotalCount, getQuartile } from "../utils";
+import { MergedValue, getTotalCount, getQuartile, getStandardDeviation, getMean } from "../utils";
 import { getRepository } from "typeorm";
 import { Region, getAuctionDataStatus, getAuctionData } from "./wowapi";
 import { Realm } from "../entity/Realm";
@@ -26,14 +26,6 @@ export class Auctions {
         return (await repository.save(newRealm)).id;
     }
 
-    private static standardDeviation(values: MergedValue[], mean: number, totalCount: number): number {
-        const variance = values.reduce((sum, value) => {
-            const diff = value.value - mean;
-            return sum + ((diff * diff) * value.count);
-        }, 0) / totalCount;
-        return Math.sqrt(variance);
-    }
-
     private static async storeAuctionData(realmId: number, lastModified: Date, data: Map<number, MergedValue[]>) {
         const repository = getRepository(Auction);
         const auctions: Auction[] = [];
@@ -56,10 +48,8 @@ export class Auctions {
             const farOutPrice = firstNonFarOut ? firstNonFarOut.value : lowestPrice;
             const outlierPrice = firstNonOutlier ? firstNonOutlier.value : lowestPrice;
 
-            const meanPrice = values.reduce((sum, value) => {
-                return sum + (value.value * value.count);
-            }, 0) / totalCount;
-            const standardDeviation = this.standardDeviation(values, meanPrice, totalCount);
+            const meanPrice = getMean(values, totalCount);
+            const standardDeviation = getStandardDeviation(values, meanPrice, totalCount);
 
             const auction = repository.create({
                 realmId: realmId,
