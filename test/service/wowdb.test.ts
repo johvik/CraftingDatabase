@@ -93,7 +93,7 @@ describe("getRecipe", () => {
     it("should get Weapon Enchant - Siphoning", async () => {
         const recipe = await getRecipe(255112);
         expect(recipe).toEqual({
-            name: "Weapon Enchant - Siphoning",
+            name: "Siphoning",
             rank: 3,
             trade: "trade_engraving",
             reagents: [
@@ -122,11 +122,6 @@ describe("getRecipe", () => {
     it("should skip REUSE ME", async () => {
         expect.assertions(1);
         await expect(getRecipe(269461)).rejects.toThrowError("Invalid value \"REUSE ME");
-    });
-
-    it("should skip REUSE ME (DNT)", async () => {
-        expect.assertions(1);
-        await expect(getRecipe(255106)).rejects.toThrowError("Invalid value \"REUSE ME");
     });
 
     it("should get Transmute: Herbs to Ore", async () => {
