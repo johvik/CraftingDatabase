@@ -3,7 +3,7 @@ import { decodeOrThrow, NeverUndefined } from "../utils";
 import { readFileSync, writeFileSync } from "fs";
 import path from "path";
 import { getAll } from "./wowhead";
-import { DateFromISOString } from "io-ts-types/lib/Date/DateFromISOString";
+import { DateFromISOString } from "io-ts-types/lib/DateFromISOString";
 import { getRecipe } from "./wowdb";
 import { getItem } from "./wowapi";
 

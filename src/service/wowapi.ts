@@ -1,8 +1,7 @@
-import rp from "request-promise-native";
 import * as t from "io-ts";
-import { DateFromNumber } from "io-ts-types/lib/Date/DateFromNumber";
+import { DateFromNumber } from "io-ts-types/lib/DateFromNumber";
 import { WOW_API_KEY } from "../secrets";
-import { decodeOrThrow } from "../utils";
+import { decodeOrThrow, fetchWithTimeout } from "../utils";
 
 export class Quotas {
     static readonly requestsPerHour = 36000;
@@ -40,7 +39,7 @@ export async function getAuctionDataStatus(realm: WowRealm): Promise<IAuctionFil
     //     }]
     // }
     const url = "https://" + realm.region + ".api.battle.net/wow/auction/data/" + realm.name.toLowerCase() + "?apikey=" + WOW_API_KEY;
-    const body = await rp.get(url, { timeout: 5000 });
+    const body = await fetchWithTimeout(url);
 
     return decodeOrThrow(AuctionFiles, JSON.parse(body)).files;
 }
@@ -64,7 +63,7 @@ const AuctionData = t.type({
 
 export async function getAuctionData(expectedRealm: string, url: string): Promise<IAuctionItem[]> {
     const expectedName = expectedRealm.toLowerCase();
-    const body = await rp.get(url, { timeout: 5000 });
+    const body = await fetchWithTimeout(url);
     const data = decodeOrThrow(AuctionData, JSON.parse(body));
     if (!data.realms.some(realm => {
         return realm.name.toLowerCase() === expectedName;
@@ -83,7 +82,7 @@ const Item = t.type({
 
 export async function getItem(itemId: number) {
     const url = "https://eu.api.battle.net/wow/item/" + itemId + "?apikey=" + WOW_API_KEY;
-    const body = await rp.get(url, { timeout: 5000 });
+    const body = await fetchWithTimeout(url);
     const item = decodeOrThrow(Item, JSON.parse(body));
     return {
         name: item.name,

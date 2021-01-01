@@ -1,5 +1,8 @@
+import { AbortController } from "abort-controller";
+import { isLeft } from "fp-ts/lib/Either";
 import * as t from "io-ts";
 import { failure } from "io-ts/lib/PathReporter";
+import fetch from "node-fetch";
 
 export function NeverUndefined<T>(item: T | undefined): T {
     return item as T;
@@ -7,8 +10,21 @@ export function NeverUndefined<T>(item: T | undefined): T {
 
 export function decodeOrThrow<A, O>(type: t.Type<A,
     O>, value: t.mixed): A {
-    return type.decode(value).getOrElseL(errors => {
-        throw new Error(failure(errors).join());
+    const decoded = type.decode(value);
+    if (isLeft(decoded)) {
+        throw new Error(failure(decoded.left).join());
+    }
+    return decoded.right;
+}
+
+export async function fetchWithTimeout(url: string): Promise<string> {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => {
+        controller.abort();
+    }, 5000);
+
+    return fetch(url, { signal: controller.signal }).then(res => res.text()).finally(() => {
+        clearTimeout(timeout);
     });
 }
 

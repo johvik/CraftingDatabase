@@ -1,11 +1,10 @@
-import rp from "request-promise-native";
 import * as t from "io-ts";
-import { decodeOrThrow } from "../utils";
+import { decodeOrThrow, fetchWithTimeout } from "../utils";
 
 function parseWh(data: string) {
     const map = JSON.parse(data.substring(data.indexOf("{"), data.lastIndexOf("}") + 1));
     const result = [];
-    for (let key in map) {
+    for (const key in map) {
         result.push({ id: Number(key), data: map[key] });
     }
     return result;
@@ -14,7 +13,7 @@ function parseWh(data: string) {
 const GItem = t.type({
     name_enus: t.string,
     icon: t.string,
-    jsonequip: t.intersection([t.partial({ buyprice: t.number })])
+    jsonequip: t.partial({ buyprice: t.number })
 });
 
 const GSpell = t.type({
@@ -151,8 +150,8 @@ export async function getAll() {
     for (const i of professions) {
         const category = i === "cooking" ? "secondary-skills" : "professions";
         const url = `https://www.wowhead.com/spells/${category}/${i}/live-only:on?filter=16:20;9:1;0:0`;
-        const content = await rp.get(url, { timeout: 10000 });
-        const data = parsePage(content, i);
+        const body = await fetchWithTimeout(url);
+        const data = parsePage(body, i);
         items = { ...items, ...data.items };
         recipes = { ...recipes, ...data.recipes };
     }

@@ -1,4 +1,4 @@
-import { decodeOrThrow, MergedValue, getQuartile, getTotalCount, delay, getStandardDeviation, getMean } from "../src/utils";
+import { decodeOrThrow, MergedValue, getQuartile, getTotalCount, delay, getStandardDeviation, getMean, fetchWithTimeout } from "../src/utils";
 import * as t from "io-ts";
 
 describe("decodeOrThrow", () => {
@@ -16,6 +16,13 @@ describe("decodeOrThrow", () => {
         expect(() => {
             decodeOrThrow(Person, { name: "Name" });
         }).toThrowError("Invalid value");
+    });
+});
+
+describe("fetchWithTimeout", () => {
+    it("should fetch google", async () => {
+        const body = await fetchWithTimeout("http://www.google.com");
+        expect(body.length).toBeGreaterThanOrEqual(1000);
     });
 });
 
