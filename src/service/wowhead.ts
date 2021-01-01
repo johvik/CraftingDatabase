@@ -2,15 +2,11 @@ import rp from "request-promise-native";
 import * as t from "io-ts";
 import { decodeOrThrow } from "../utils";
 
-function parseG(data: string) {
+function parseWh(data: string) {
+    const map = JSON.parse(data.substring(data.indexOf("{"), data.lastIndexOf("}") + 1));
     const result = [];
-    const g_exp = /\_\[(\d+)\]=([^;]+);/g;
-    let match;
-    while (match = g_exp.exec(data)) {
-        result.push({
-            id: Number(match[1]),
-            data: JSON.parse(match[2])
-        });
+    for (let key in map) {
+        result.push({ id: Number(key), data: map[key] });
     }
     return result;
 }
@@ -61,16 +57,19 @@ type Recipe = {
 };
 
 export function parsePage(content: string, profession: string) {
-    const cdata = content.match(/\/\/<!\[CDATA\[([^]*)g_items([^]*)g_spells[^]*listviewspells = ([^]*);[^]*new Listview[^]*\/\/\]/);
+    const cdata = content.match(/\/\/<!\[CDATA\[[^]*WH\.Gatherer\.addData([^]*)WH\.Gatherer\.addData([^]*)var listviewspells = ([^]*);[^]*new Listview[^]*\/\/\]/);
     if (!cdata) {
         throw Error("CDATA not found");
     }
-    const g_items = cdata[1];
-    const g_spells = cdata[2];
-    const recipes = JSON.parse(cdata[3]);
+    const matched_items = cdata[1];
+    const matched_spells = cdata[2];
+    const matched_recpies = cdata[3]
+        .replace(/,quality/g, ",\"quality\"")
+        .replace(/,popularity/g, ",\"popularity\"");
+    const recipes = JSON.parse(matched_recpies);
 
-    const items = parseG(g_items);
-    const spells = parseG(g_spells);
+    const items = parseWh(matched_items);
+    const spells = parseWh(matched_spells);
 
     const decodedItems: {
         [id: number]: Item | undefined
@@ -150,8 +149,8 @@ export async function getAll() {
         [id: number]: Recipe | undefined
     } = {};
     for (const i of professions) {
-        const extra = i === "cooking" ? "-recipe" : "";
-        const url = `https://www.wowhead.com/${i}${extra}-spells/live-only:on?filter=16:20;8:1;0:0`;
+        const category = i === "cooking" ? "secondary-skills" : "professions";
+        const url = `https://www.wowhead.com/spells/${category}/${i}/live-only:on?filter=16:20;9:1;0:0`;
         const content = await rp.get(url, { timeout: 10000 });
         const data = parsePage(content, i);
         items = { ...items, ...data.items };

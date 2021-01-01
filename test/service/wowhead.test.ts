@@ -8,43 +8,43 @@ describe("parsePage", () => {
         const result = parsePage(content, "cooking");
 
         expect(Object.keys(result)).toEqual(["items", "recipes"]);
-        expect(Object.keys(result.items)).toHaveLength(34);
-        expect(Object.keys(result.recipes)).toHaveLength(37);
+        expect(Object.keys(result.items)).toHaveLength(59);
+        expect(Object.keys(result.recipes)).toHaveLength(31);
 
-        expect(result.items[160709]).toEqual({
-            name: "Fresh Potato",
-            icon: "inv_cooking_80_brownpotato",
-            price: 25000
+        expect(result.items[172059]).toEqual({
+            name: "Rich Grazer Milk",
+            icon: "inv_drink_milk_03",
+            price: 42500
         });
-        expect(result.items[154888]).toEqual({
-            name: "Sailor's Pie",
-            icon: "inv_cooking_80_sailorspie"
+        expect(result.items[172048]).toEqual({
+            name: "Meaty Apple Dumplings",
+            icon: "inv_cooking_90_meatyappledumplings"
         });
 
-        expect(result.recipes[259411]).toEqual({
+        expect(result.recipes[308400]).toEqual({
             crafts: {
-                id: 154881,
-                quantity: 5
+                id: 172041,
+                quantity: 3
             },
-            name: "Kul Tiramisu",
-            icon: "inv_cooking_80_kultiramisu",
+            name: "Spinefin Souffle and Fries",
+            icon: "inv_cooking_90_phantasmalsoufflefries",
             profession: "cooking",
             reagents: [
                 {
-                    id: 160399,
-                    quantity: 10
+                    id: 173036,
+                    quantity: 3
                 },
                 {
-                    id: 160400,
-                    quantity: 5
+                    id: 173033,
+                    quantity: 3
                 },
                 {
-                    id: 160711,
+                    id: 172058,
+                    quantity: 4
+                },
+                {
+                    id: 172057,
                     quantity: 2
-                },
-                {
-                    id: 160705,
-                    quantity: 5
                 }]
         });
     });
@@ -54,37 +54,34 @@ describe("parsePage", () => {
         const result = parsePage(content, "enchanting");
 
         expect(Object.keys(result)).toEqual(["items", "recipes"]);
-        expect(Object.keys(result.items)).toHaveLength(10);
-        expect(Object.keys(result.recipes)).toHaveLength(73);
+        expect(Object.keys(result.items)).toHaveLength(23);
+        expect(Object.keys(result.recipes)).toHaveLength(45);
 
-        expect(result.items[152877]).toEqual({
-            name: "Veiled Crystal",
-            icon: "inv_enchanting_80_veiledcrystal"
+        expect(result.items[181990]).toEqual({
+            name: "Twilight Dust",
+            icon: "inv_enchanting_80_shadowdust"
         });
 
-        expect(result.recipes[255070]).toEqual({
-            name: "Kul Tiran Crafting",
+        expect(result.recipes[323609]).toEqual({
+            name: "Soul Treads",
             icon: "trade_engraving",
             profession: "enchanting",
             reagents: [{
-                id: 152875,
-                quantity: 5
+                id: 172230,
+                quantity: 3
             }]
         });
-        expect(result.recipes[278418]).toEqual({
+        expect(result.recipes[309638]).toEqual({
             crafts: {
-                id: 162110,
+                id: 172439,
                 quantity: 1
             },
-            name: "Disenchanting Rod",
-            icon: "inv_rod_enchantedeternium",
+            name: "Enchanted Lightless Silk",
+            icon: "inv_enchanting_craftedreagent_cloth",
             profession: "enchanting",
             reagents: [
-                { id: 11291, quantity: 1 },
-                { id: 152875, quantity: 40 },
-                { id: 152877, quantity: 5 },
-                { id: 152668, quantity: 30 },
-                { id: 162460, quantity: 1 }
+                { id: 172230, quantity: 1 },
+                { id: 173204, quantity: 2 }
             ]
         });
     });
