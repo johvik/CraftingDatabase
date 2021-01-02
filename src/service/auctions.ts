@@ -71,8 +71,8 @@ export default class Auctions {
     await repository.save(auctions, { chunk: Math.max(1, Math.ceil(auctions.length / 1000)) });
   }
 
-  private async updateAuctionData(realm: Realm) {
-    const statusList = await getAuctionDataStatus(realm);
+  private async updateAuctionData(realm: Realm, accessToken:string) {
+    const statusList = await getAuctionDataStatus(realm, accessToken);
     const lastUpdate = this.lastUpdates.get(realm.id);
     const first = statusList[0];
     if (!lastUpdate || lastUpdate.lastModified.getTime() < first.lastModified.getTime()) {
@@ -104,7 +104,7 @@ export default class Auctions {
     }
   }
 
-  async updateAll() {
+  async updateAll(accessToken:string) {
     if (this.updating) {
       console.log('Auctions#updateAll', 'already updating', new Date());
     } else {
@@ -112,7 +112,7 @@ export default class Auctions {
       const realms = await getRepository(Realm).find();
       for (const i of realms) {
         try {
-          await this.updateAuctionData(i);
+          await this.updateAuctionData(i, accessToken);
         } catch (error) {
           console.debug('Auctions#updateAll', error, new Date());
         }

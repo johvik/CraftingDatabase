@@ -63,7 +63,7 @@ export default class Data {
     };
   }
 
-  async update() {
+  async update(accessToken:string) {
     try {
       const result = await getAll();
       const now = new Date();
@@ -104,7 +104,7 @@ export default class Data {
         if (crafts) {
           const oldItem = this.data.items[crafts.id];
           if (!oldItem || oldItem.updated.getTime() !== now.getTime()) {
-            const item = await getItem(crafts.id);
+            const item = await getItem(crafts.id, accessToken);
             this.data.items[crafts.id] = {
               name: item.name,
               icon: item.icon,

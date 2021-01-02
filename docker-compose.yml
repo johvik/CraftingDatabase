@@ -20,7 +20,8 @@ services:
       - db
     environment:
       - SERVER_PORT=3000
-      - WOW_API_KEY=${WOW_API_KEY}
+      - WOW_CLIENT_ID=${WOW_CLIENT_ID}
+      - WOW_CLIENT_SECRET=${WOW_CLIENT_SECRET}
       - DB_HOST=db
       - DB_PORT=3306
       - DB_USERNAME=cdb

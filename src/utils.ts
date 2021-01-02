@@ -2,7 +2,7 @@ import { AbortController } from 'abort-controller';
 import { isLeft } from 'fp-ts/lib/Either';
 import * as t from 'io-ts';
 import { failure } from 'io-ts/lib/PathReporter';
-import fetch from 'node-fetch';
+import fetch, { RequestInit } from 'node-fetch';
 
 export function NeverUndefined<T>(item: T | undefined): T {
   return item as T;
@@ -17,13 +17,15 @@ O>, value: t.mixed): A {
   return decoded.right;
 }
 
-export async function fetchWithTimeout(url: string): Promise<string> {
+export async function fetchWithTimeout(url: string, init?:RequestInit): Promise<string> {
   const controller = new AbortController();
   const timeout = setTimeout(() => {
     controller.abort();
   }, 5000);
 
-  return fetch(url, { signal: controller.signal }).then((res) => res.text()).finally(() => {
+  return fetch(
+    url, { signal: controller.signal, ...init },
+  ).then((res) => res.text()).finally(() => {
     clearTimeout(timeout);
   });
 }

@@ -1,6 +1,8 @@
 import * as t from 'io-ts';
 import { DateFromNumber } from 'io-ts-types/lib/DateFromNumber';
-import { WOW_API_KEY } from '../secrets';
+import FormData from 'form-data';
+import { Headers } from 'node-fetch';
+import { WOW_CLIENT_ID, WOW_CLIENT_SECRET } from '../secrets';
 import { decodeOrThrow, fetchWithTimeout } from '../utils';
 
 export class Quotas {
@@ -14,6 +16,27 @@ export enum Region {
   KR = 'kr',
   TW = 'tw',
   US = 'us',
+}
+
+const TToken = t.type({
+  access_token: t.string,
+});
+
+export async function getAccessToken(region:Region) {
+  const url = `https://${region}.battle.net/oauth/token`;
+  const credentials = Buffer.from(`${WOW_CLIENT_ID}:${WOW_CLIENT_SECRET}`).toString('base64');
+  const formData = new FormData();
+  formData.append('grant_type', 'client_credentials');
+
+  const body = await fetchWithTimeout(url, {
+    method: 'POST',
+    headers: new Headers({
+      Authorization: `Basic ${credentials}`,
+    }),
+    body: formData,
+  });
+
+  return decodeOrThrow(TToken, JSON.parse(body)).access_token;
 }
 
 const AuctionFile = t.type({
@@ -32,14 +55,16 @@ type WowRealm = {
   name: string
 };
 
-export async function getAuctionDataStatus(realm: WowRealm): Promise<IAuctionFile[]> {
+export async function getAuctionDataStatus(
+  realm: WowRealm, accessToken:string,
+): Promise<IAuctionFile[]> {
   // {
   //     "files": [{
   //         "url": "http://auction-api-eu.worldofwarcraft.com/auction-data/e4a529d50fe9f24cff1ad0bf1c56c897/auctions.json",
   //         "lastModified": 1535890107000
   //     }]
   // }
-  const url = `https://${realm.region}.api.battle.net/wow/auction/data/${realm.name.toLowerCase()}?apikey=${WOW_API_KEY}`;
+  const url = `https://${realm.region}.api.battle.net/wow/auction/data/${realm.name.toLowerCase()}?access_token=${accessToken}`;
   const body = await fetchWithTimeout(url);
 
   return decodeOrThrow(AuctionFiles, JSON.parse(body)).files;
@@ -79,8 +104,8 @@ const Item = t.type({
   stackable: t.number,
 });
 
-export async function getItem(itemId: number) {
-  const url = `https://eu.api.battle.net/wow/item/${itemId}?apikey=${WOW_API_KEY}`;
+export async function getItem(itemId: number, accessToken:string) {
+  const url = `https://eu.api.battle.net/wow/item/${itemId}?access_token=${accessToken}`;
   const body = await fetchWithTimeout(url);
   const item = decodeOrThrow(Item, JSON.parse(body));
   return {

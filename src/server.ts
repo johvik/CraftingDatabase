@@ -13,6 +13,7 @@ import Realm from './entity/Realm';
 import Auction from './entity/Auction';
 import Auctions from './service/auctions';
 import Data from './service/data';
+import { getAccessToken, Region } from './service/wowapi';
 
 async function load() {
   await createConnection({
@@ -62,17 +63,19 @@ async function load() {
   createServer(options, app).listen(SERVER_PORT, () => console.info('Express started', new Date()));
 
   console.info('Starting initial update', new Date());
-  await data.data.update();
+  // TODO Update access token periodically
+  const accessToken = await getAccessToken(Region.EU);
+  await data.data.update(accessToken);
   await Auctions.deleteOld();
-  await data.auctions.updateAll();
+  await data.auctions.updateAll(accessToken);
 
   console.info('Starting jobs', new Date());
   new CronJob('00 30 02 * * *', async () => {
     await Auctions.deleteOld();
-    await data.data.update();
+    await data.data.update(accessToken);
   }).start();
   new CronJob('00 */2 * * * *', async () => {
-    await data.auctions.updateAll();
+    await data.auctions.updateAll(accessToken);
   }).start();
   console.info('Jobs started', new Date());
 })().catch((error) => {
