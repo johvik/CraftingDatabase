@@ -17,17 +17,28 @@ O>, value: t.mixed): A {
   return decoded.right;
 }
 
-export async function fetchWithTimeout(url: string, init?:RequestInit): Promise<string> {
+interface FetchResult {
+  text:string,
+  lastModified?:number,
+}
+
+export async function fetchWithTimeout(
+  url: string, init?:RequestInit,
+): Promise<FetchResult> {
   const controller = new AbortController();
   const timeout = setTimeout(() => {
     controller.abort();
   }, 5000);
 
-  return fetch(
-    url, { signal: controller.signal, ...init },
-  ).then((res) => res.text()).finally(() => {
+  try {
+    const res = await fetch(url, { signal: controller.signal, ...init });
+    const text = await res.text();
+    const parsedLastModified = Date.parse(res.headers.get('Last-Modified') || '');
+    const lastModified = Number.isNaN(parsedLastModified) ? undefined : parsedLastModified;
+    return { text, lastModified };
+  } finally {
     clearTimeout(timeout);
-  });
+  }
 }
 
 export type MergedValue = {

@@ -25,7 +25,7 @@ describe('decodeOrThrow', () => {
 describe('fetchWithTimeout', () => {
   it('should fetch google', async () => {
     const body = await fetchWithTimeout('http://www.google.com');
-    expect(body.length).toBeGreaterThanOrEqual(1000);
+    expect(body.text.length).toBeGreaterThanOrEqual(1000);
   });
 });
 

@@ -36,7 +36,7 @@ export async function getAccessToken(region:Region) {
     body: formData,
   });
 
-  return decodeOrThrow(TToken, JSON.parse(body)).access_token;
+  return decodeOrThrow(TToken, JSON.parse(body.text)).access_token;
 }
 
 const AuctionFile = t.type({
@@ -67,7 +67,7 @@ export async function getAuctionDataStatus(
   const url = `https://${realm.region}.api.blizzard.com/data/wow/auction/data/${realm.name.toLowerCase()}?access_token=${accessToken}`;
   const body = await fetchWithTimeout(url);
 
-  return decodeOrThrow(AuctionFiles, JSON.parse(body)).files;
+  return decodeOrThrow(AuctionFiles, JSON.parse(body.text)).files;
 }
 
 const AuctionItem = t.type({
@@ -90,7 +90,7 @@ const AuctionData = t.type({
 export async function getAuctionData(expectedRealm: string, url: string): Promise<IAuctionItem[]> {
   const expectedName = expectedRealm.toLowerCase();
   const body = await fetchWithTimeout(url);
-  const data = decodeOrThrow(AuctionData, JSON.parse(body));
+  const data = decodeOrThrow(AuctionData, JSON.parse(body.text));
   if (!data.realms.some((realm) => realm.name.toLowerCase() === expectedName)) {
     throw new Error(`Realm not found ${expectedRealm}`);
   }
@@ -112,7 +112,7 @@ export async function getMediaIcon(url:string, accessToken:string) {
     throw new Error(`Unexpected media URL ${mediaUrl}`);
   }
   const body = await fetchWithTimeout(mediaUrl);
-  const mediaItem = decodeOrThrow(MediaItem, JSON.parse(body));
+  const mediaItem = decodeOrThrow(MediaItem, JSON.parse(body.text));
 
   const icons = mediaItem.assets.filter((asset) => asset.key === 'icon');
   if (icons.length === 0) {
@@ -131,7 +131,7 @@ const Item = t.type({
 export async function getItem(itemId: number, accessToken:string) {
   const url = `https://eu.api.blizzard.com/data/wow/item/${itemId}?namespace=static-eu&locale=en_GB&access_token=${accessToken}`;
   const body = await fetchWithTimeout(url);
-  const item = decodeOrThrow(Item, JSON.parse(body));
+  const item = decodeOrThrow(Item, JSON.parse(body.text));
   const icon = await getMediaIcon(item.media.key.href, accessToken);
   return {
     name: item.name,
