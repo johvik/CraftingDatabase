@@ -1,93 +1,92 @@
-import * as t from "io-ts";
-import { DateFromNumber } from "io-ts-types/lib/DateFromNumber";
-import { WOW_API_KEY } from "../secrets";
-import { decodeOrThrow, fetchWithTimeout } from "../utils";
+import * as t from 'io-ts';
+import { DateFromNumber } from 'io-ts-types/lib/DateFromNumber';
+import { WOW_API_KEY } from '../secrets';
+import { decodeOrThrow, fetchWithTimeout } from '../utils';
 
 export class Quotas {
-    static readonly requestsPerHour = 36000;
-    static readonly requestsPerSecond = 100;
+  static readonly requestsPerHour = 36000;
+
+  static readonly requestsPerSecond = 100;
 }
 
 export enum Region {
-    EU = "eu",
-    KR = "kr",
-    TW = "tw",
-    US = "us"
+  EU = 'eu',
+  KR = 'kr',
+  TW = 'tw',
+  US = 'us',
 }
 
 const AuctionFile = t.type({
-    url: t.string,
-    lastModified: DateFromNumber
+  url: t.string,
+  lastModified: DateFromNumber,
 });
 
 type IAuctionFile = t.TypeOf<typeof AuctionFile>;
 
 const AuctionFiles = t.type({
-    files: t.refinement(t.array(AuctionFile), files => files.length > 0)
+  files: t.refinement(t.array(AuctionFile), (files) => files.length > 0),
 });
 
 type WowRealm = {
-    region: Region,
-    name: string
+  region: Region,
+  name: string
 };
 
 export async function getAuctionDataStatus(realm: WowRealm): Promise<IAuctionFile[]> {
-    // {
-    //     "files": [{
-    //         "url": "http://auction-api-eu.worldofwarcraft.com/auction-data/e4a529d50fe9f24cff1ad0bf1c56c897/auctions.json",
-    //         "lastModified": 1535890107000
-    //     }]
-    // }
-    const url = "https://" + realm.region + ".api.battle.net/wow/auction/data/" + realm.name.toLowerCase() + "?apikey=" + WOW_API_KEY;
-    const body = await fetchWithTimeout(url);
+  // {
+  //     "files": [{
+  //         "url": "http://auction-api-eu.worldofwarcraft.com/auction-data/e4a529d50fe9f24cff1ad0bf1c56c897/auctions.json",
+  //         "lastModified": 1535890107000
+  //     }]
+  // }
+  const url = `https://${realm.region}.api.battle.net/wow/auction/data/${realm.name.toLowerCase()}?apikey=${WOW_API_KEY}`;
+  const body = await fetchWithTimeout(url);
 
-    return decodeOrThrow(AuctionFiles, JSON.parse(body)).files;
+  return decodeOrThrow(AuctionFiles, JSON.parse(body)).files;
 }
 
 const AuctionItem = t.type({
-    item: t.number,
-    buyout: t.number,
-    quantity: t.number
+  item: t.number,
+  buyout: t.number,
+  quantity: t.number,
 });
 
 type IAuctionItem = t.TypeOf<typeof AuctionItem>;
 
 const AuctionRealm = t.type({
-    name: t.string
+  name: t.string,
 });
 
 const AuctionData = t.type({
-    realms: t.array(AuctionRealm),
-    auctions: t.array(AuctionItem)
+  realms: t.array(AuctionRealm),
+  auctions: t.array(AuctionItem),
 });
 
 export async function getAuctionData(expectedRealm: string, url: string): Promise<IAuctionItem[]> {
-    const expectedName = expectedRealm.toLowerCase();
-    const body = await fetchWithTimeout(url);
-    const data = decodeOrThrow(AuctionData, JSON.parse(body));
-    if (!data.realms.some(realm => {
-        return realm.name.toLowerCase() === expectedName;
-    })) {
-        throw new Error("Realm not found " + expectedRealm);
-    }
-    return data.auctions;
+  const expectedName = expectedRealm.toLowerCase();
+  const body = await fetchWithTimeout(url);
+  const data = decodeOrThrow(AuctionData, JSON.parse(body));
+  if (!data.realms.some((realm) => realm.name.toLowerCase() === expectedName)) {
+    throw new Error(`Realm not found ${expectedRealm}`);
+  }
+  return data.auctions;
 }
 
 const Item = t.type({
-    name: t.string,
-    icon: t.string,
-    buyPrice: t.number,
-    stackable: t.number
+  name: t.string,
+  icon: t.string,
+  buyPrice: t.number,
+  stackable: t.number,
 });
 
 export async function getItem(itemId: number) {
-    const url = "https://eu.api.battle.net/wow/item/" + itemId + "?apikey=" + WOW_API_KEY;
-    const body = await fetchWithTimeout(url);
-    const item = decodeOrThrow(Item, JSON.parse(body));
-    return {
-        name: item.name,
-        icon: item.icon,
-        price: item.buyPrice,
-        stackSize: item.stackable
-    };
+  const url = `https://eu.api.battle.net/wow/item/${itemId}?apikey=${WOW_API_KEY}`;
+  const body = await fetchWithTimeout(url);
+  const item = decodeOrThrow(Item, JSON.parse(body));
+  return {
+    name: item.name,
+    icon: item.icon,
+    price: item.buyPrice,
+    stackSize: item.stackable,
+  };
 }

@@ -1,9 +1,9 @@
-describe("dummy test", () => {
-    it("should do nothing", async () => {
-    });
+describe('dummy test', () => {
+  it('should do nothing', async () => {
+  });
 });
 
-/*import { Region, getAuctionDataStatus, getItem } from "../../src/service/wowapi";
+/* import { Region, getAuctionDataStatus, getItem } from "../../src/service/wowapi";
 
 describe("getAuctionDataStatus", () => {
     it("should get Draenor EU", async () => {
