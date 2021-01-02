@@ -64,7 +64,7 @@ export async function getAuctionDataStatus(
   //         "lastModified": 1535890107000
   //     }]
   // }
-  const url = `https://${realm.region}.api.battle.net/wow/auction/data/${realm.name.toLowerCase()}?access_token=${accessToken}`;
+  const url = `https://${realm.region}.api.blizzard.com/data/wow/auction/data/${realm.name.toLowerCase()}?access_token=${accessToken}`;
   const body = await fetchWithTimeout(url);
 
   return decodeOrThrow(AuctionFiles, JSON.parse(body)).files;
@@ -97,21 +97,45 @@ export async function getAuctionData(expectedRealm: string, url: string): Promis
   return data.auctions;
 }
 
+const Asset = t.type({
+  key: t.string,
+  value: t.string,
+});
+
+const MediaItem = t.type({
+  assets: t.array(Asset),
+});
+
+export async function getMediaIcon(url:string, accessToken:string) {
+  const mediaUrl = `${url}&access_token=${accessToken}`;
+  if (!mediaUrl.startsWith('https://eu.api.blizzard.com/')) {
+    throw new Error(`Unexpected media URL ${mediaUrl}`);
+  }
+  const body = await fetchWithTimeout(mediaUrl);
+  const mediaItem = decodeOrThrow(MediaItem, JSON.parse(body));
+
+  const icons = mediaItem.assets.filter((asset) => asset.key === 'icon');
+  if (icons.length === 0) {
+    throw new Error(`No icon found in ${url}`);
+  }
+
+  return icons[0].value;
+}
+
 const Item = t.type({
   name: t.string,
-  icon: t.string,
-  buyPrice: t.number,
-  stackable: t.number,
+  media: t.type({ key: t.type({ href: t.string }) }),
+  purchase_price: t.number,
 });
 
 export async function getItem(itemId: number, accessToken:string) {
-  const url = `https://eu.api.battle.net/wow/item/${itemId}?access_token=${accessToken}`;
+  const url = `https://eu.api.blizzard.com/data/wow/item/${itemId}?namespace=static-eu&locale=en_GB&access_token=${accessToken}`;
   const body = await fetchWithTimeout(url);
   const item = decodeOrThrow(Item, JSON.parse(body));
+  const icon = await getMediaIcon(item.media.key.href, accessToken);
   return {
     name: item.name,
-    icon: item.icon,
-    price: item.buyPrice,
-    stackSize: item.stackable,
+    icon,
+    price: item.purchase_price,
   };
 }
