@@ -150,8 +150,8 @@ export async function getAll() {
   for (const i of professions) {
     const category = i === 'cooking' ? 'secondary-skills' : 'professions';
     const url = `https://www.wowhead.com/spells/${category}/${i}/live-only:on?filter=16:20;9:1;0:0`;
-    const body = await fetchWithTimeout(url);
-    const data = parsePage(body.text, i);
+    const res = await fetchWithTimeout(url);
+    const data = parsePage(res.text, i);
     items = { ...items, ...data.items };
     recipes = { ...recipes, ...data.recipes };
   }
