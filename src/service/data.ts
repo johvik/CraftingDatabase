@@ -105,6 +105,8 @@ export default class Data {
           const oldItem = this.data.items[crafts.id];
           if (!oldItem || oldItem.updated.getTime() !== now.getTime()) {
             const item = await getItem(crafts.id, accessToken);
+            // Don't use the price here since the WOW APIs price information
+            // seems to always be present
             this.data.items[crafts.id] = {
               name: item.name,
               icon: item.icon,
