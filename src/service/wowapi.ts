@@ -1,5 +1,4 @@
 import * as t from 'io-ts';
-import { DateFromNumber } from 'io-ts-types/lib/DateFromNumber';
 import FormData from 'form-data';
 import { Headers } from 'node-fetch';
 import { WOW_CLIENT_ID, WOW_CLIENT_SECRET } from '../secrets';
@@ -39,62 +38,37 @@ export async function getAccessToken(region:Region) {
   return decodeOrThrow(TToken, JSON.parse(res.text)).access_token;
 }
 
-const AuctionFile = t.type({
-  url: t.string,
-  lastModified: DateFromNumber,
-});
-
-type IAuctionFile = t.TypeOf<typeof AuctionFile>;
-
-const AuctionFiles = t.type({
-  files: t.refinement(t.array(AuctionFile), (files) => files.length > 0),
-});
-
-type WowRealm = {
-  region: Region,
-  name: string
-};
-
-export async function getAuctionDataStatus(
-  realm: WowRealm, accessToken:string,
-): Promise<IAuctionFile[]> {
-  // {
-  //     "files": [{
-  //         "url": "http://auction-api-eu.worldofwarcraft.com/auction-data/e4a529d50fe9f24cff1ad0bf1c56c897/auctions.json",
-  //         "lastModified": 1535890107000
-  //     }]
-  // }
-  const url = `https://${realm.region}.api.blizzard.com/data/wow/auction/data/${realm.name.toLowerCase()}?access_token=${accessToken}`;
-  const res = await fetchWithTimeout(url);
-
-  return decodeOrThrow(AuctionFiles, JSON.parse(res.text)).files;
-}
-
 const AuctionItem = t.type({
-  item: t.number,
+  item: t.type({ id: t.number }),
   buyout: t.number,
+  unit_price: t.number,
   quantity: t.number,
 });
 
 type IAuctionItem = t.TypeOf<typeof AuctionItem>;
 
-const AuctionRealm = t.type({
-  name: t.string,
-});
-
 const AuctionData = t.type({
-  realms: t.array(AuctionRealm),
+  connected_realm: t.type({
+    href: t.string,
+  }),
   auctions: t.array(AuctionItem),
 });
 
-export async function getAuctionData(expectedRealm: string, url: string): Promise<IAuctionItem[]> {
-  const expectedName = expectedRealm.toLowerCase();
+interface AuctionResult {
+  lastModified?: Date,
+  auctions: IAuctionItem[],
+}
+
+export async function getAuctionData(
+  region:Region, connectedRealmId: number, accessToken:string,
+): Promise<AuctionResult> {
+  const url = `https://${region}.api.blizzard.com/data/wow/connected-realm/${connectedRealmId}/auctions?namespace=dynamic-${region}&access_token=${accessToken}`;
   const res = await fetchWithTimeout(url);
   const data = decodeOrThrow(AuctionData, JSON.parse(res.text));
-  if (!data.realms.some((realm) => realm.name.toLowerCase() === expectedName)) {
-    throw new Error(`Realm not found ${expectedRealm}`);
+  if (data.connected_realm.href.indexOf(connectedRealmId.toString()) === -1) {
+    throw new Error(`ConnectedRealmId not found ${connectedRealmId}`);
   }
-  return data.auctions;
+  return { lastModified: res.lastModified, auctions: data.auctions };
 }
 
 const Asset = t.type({

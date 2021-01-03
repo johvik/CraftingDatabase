@@ -2,10 +2,10 @@ import { Entity, PrimaryColumn, Column } from 'typeorm';
 
 @Entity()
 export default class Auction {
-  // realmId is first to be first in the index
+  // generatedConnectedRealmId is first to be first in the index
   @PrimaryColumn()
   // @ts-ignore
-  realmId: number;
+  generatedConnectedRealmId: number;
 
   @PrimaryColumn()
   // @ts-ignore

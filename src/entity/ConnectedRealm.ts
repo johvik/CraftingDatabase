@@ -4,7 +4,7 @@ import {
 import { Region } from '../service/wowapi';
 
 @Entity()
-export default class Realm {
+export default class ConnectedRealm {
   @Generated()
   @Index({ unique: true })
   @Column()
@@ -13,9 +13,9 @@ export default class Realm {
 
   @PrimaryColumn()
   // @ts-ignore
-  region: Region;
+  connectedRealmId: number;
 
   @PrimaryColumn()
   // @ts-ignore
-  name: string;
+  region: Region;
 }

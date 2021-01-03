@@ -9,7 +9,7 @@ import path from 'path';
 import {
   DB_HOST, DB_PORT, DB_USERNAME, DB_PASSWORD, DB_DATABASE, SERVER_PORT,
 } from './secrets';
-import Realm from './entity/Realm';
+import ConnectedRealm from './entity/ConnectedRealm';
 import Auction from './entity/Auction';
 import Auctions from './service/auctions';
 import Data from './service/data';
@@ -23,7 +23,7 @@ async function load() {
     username: DB_USERNAME,
     password: DB_PASSWORD,
     database: DB_DATABASE,
-    entities: [Realm, Auction],
+    entities: [ConnectedRealm, Auction],
     synchronize: true,
     logging: false,
   });
@@ -45,9 +45,11 @@ async function load() {
   app.use(compression());
 
   app.get('/data', (_, res) => res.type('json').send(data.data.json()));
-  app.get('/auctions/:realmId(\\d+)', async (req, res) => {
+  app.get('/auctions/:generatedConnectedRealmId(\\d+)', async (req, res) => {
     try {
-      const auctions = await data.auctions.json(parseInt(req.params.realmId, 10), data.data);
+      const auctions = await data.auctions.json(
+        parseInt(req.params.generatedConnectedRealmId, 10), data.data,
+      );
       return res.type('json').send(auctions);
     } catch (_) {
       return res.sendStatus(404);

@@ -2,10 +2,10 @@ import { getRepository } from 'typeorm';
 import {
   MergedValue, getTotalCount, getQuartile, getStandardDeviation, getMean,
 } from '../utils';
-import { Region, getAuctionDataStatus, getAuctionData } from './wowapi';
-import Realm from '../entity/Realm';
+import { getAuctionData } from './wowapi';
 import Auction from '../entity/Auction';
 import Data from './data';
+import ConnectedRealm from '../entity/ConnectedRealm';
 
 type LastUpdateInfo = {
   lastAttempt: Date,
@@ -18,19 +18,8 @@ export default class Auctions {
 
   private lastUpdates = new Map<number, LastUpdateInfo>();
 
-  static async storeRealm(region: Region, realm: string): Promise<number> {
-    const name = realm.toLowerCase();
-    const repository = getRepository(Realm);
-    const result = await repository.findOne({ region, name });
-    if (result) {
-      return result.id;
-    }
-    const newRealm = repository.create({ region, name });
-    return (await repository.save(newRealm)).id;
-  }
-
   private static async storeAuctionData(
-    realmId: number, lastModified: Date, data: Map<number, MergedValue[]>,
+    generatedConnectedRealmId: number, lastModified: Date, data: Map<number, MergedValue[]>,
   ) {
     const repository = getRepository(Auction);
     const auctions: Auction[] = [];
@@ -53,7 +42,7 @@ export default class Auctions {
       const standardDeviation = getStandardDeviation(values, meanPrice, totalCount);
 
       const auction = repository.create({
-        realmId,
+        generatedConnectedRealmId,
         id,
         lastUpdate: lastModified,
         quantity: totalCount,
@@ -71,36 +60,45 @@ export default class Auctions {
     await repository.save(auctions, { chunk: Math.max(1, Math.ceil(auctions.length / 1000)) });
   }
 
-  private async updateAuctionData(realm: Realm, accessToken:string) {
-    const statusList = await getAuctionDataStatus(realm, accessToken);
-    const lastUpdate = this.lastUpdates.get(realm.id);
-    const first = statusList[0];
-    if (!lastUpdate || lastUpdate.lastModified.getTime() < first.lastModified.getTime()) {
-      for (const status of statusList) {
-        const data = await getAuctionData(realm.name, status.url);
+  private async updateAuctionData(connectedRealm: ConnectedRealm, accessToken:string) {
+    const lastUpdate = this.lastUpdates.get(connectedRealm.id);
+    const data = await getAuctionData(
+      connectedRealm.region, connectedRealm.connectedRealmId, accessToken,
+    );
 
-        // Merge items with the same id
-        const map = new Map<number, MergedValue[]>();
-        for (const i of data) {
-          if (i.buyout !== 0) { // Skip items without a buyout
-            const value = map.get(i.item);
-            const mergedValue = { value: i.buyout / i.quantity, count: i.quantity };
-            if (value) {
-              value.push(mergedValue);
-            } else {
-              map.set(i.item, [mergedValue]);
-            }
+    const now = new Date();
+    const lastModifiedOrNow = data.lastModified !== undefined ? data.lastModified : now;
+
+    if (!lastUpdate || lastUpdate.lastModified.getTime() < lastModifiedOrNow.getTime()) {
+      // Merge items with the same id
+      const map = new Map<number, MergedValue[]>();
+      for (const i of data.auctions) {
+        let unitPrice = 0;
+        if (i.buyout !== undefined) {
+          unitPrice = i.buyout / i.quantity;
+        } else if (i.unit_price !== undefined) {
+          unitPrice = i.unit_price;
+        }
+
+        if (unitPrice !== 0) { // Skip items without a buyout
+          const value = map.get(i.item.id);
+          const mergedValue = { value: unitPrice, count: i.quantity };
+          if (value) {
+            value.push(mergedValue);
+          } else {
+            map.set(i.item.id, [mergedValue]);
           }
         }
-        await Auctions.storeAuctionData(realm.id, first.lastModified, map);
       }
-      this.lastUpdates.set(realm.id, {
-        lastAttempt: new Date(),
-        lastModified: first.lastModified,
+      await Auctions.storeAuctionData(connectedRealm.id, lastModifiedOrNow, map);
+
+      this.lastUpdates.set(connectedRealm.id, {
+        lastAttempt: now,
+        lastModified: lastModifiedOrNow,
         cache: '',
       });
     } else if (lastUpdate) {
-      lastUpdate.lastAttempt = new Date();
+      lastUpdate.lastAttempt = now;
     }
   }
 
@@ -109,8 +107,8 @@ export default class Auctions {
       console.log('Auctions#updateAll', 'already updating', new Date());
     } else {
       this.updating = true;
-      const realms = await getRepository(Realm).find();
-      for (const i of realms) {
+      const connectedRealms = await getRepository(ConnectedRealm).find();
+      for (const i of connectedRealms) {
         try {
           await this.updateAuctionData(i, accessToken);
         } catch (error) {
@@ -133,8 +131,8 @@ export default class Auctions {
     }
   }
 
-  async json(realmId: number, data: Data): Promise<string> {
-    const lastUpdate = this.lastUpdates.get(realmId);
+  async json(generatedConnectedRealmId: number, data: Data): Promise<string> {
+    const lastUpdate = this.lastUpdates.get(generatedConnectedRealmId);
     if (lastUpdate) {
       if (lastUpdate.cache !== '') {
         return lastUpdate.cache;
@@ -154,7 +152,7 @@ export default class Auctions {
         .addSelect('auction.secondQuartile', 'secondQuartile')
         .addSelect('auction.thirdQuartile', 'thirdQuartile')
         .addSelect('auction.standardDeviation', 'standardDeviation')
-        .where('auction.realmId = :realmId', { realmId })
+        .where('auction.generatedConnectedRealmId = :generatedConnectedRealmId', { generatedConnectedRealmId })
         .andWhere('auction.id IN (:itemIds)', { itemIds: [...data.itemIds()] })
         .orderBy('lastUpdate', 'ASC')
         .getRawMany();
@@ -165,7 +163,7 @@ export default class Auctions {
       });
       return lastUpdate.cache;
     }
-    throw new Error(`Auctions#json ${realmId} not found`);
+    throw new Error(`Auctions#json ${generatedConnectedRealmId} not found`);
   }
 
   lastUpdate() {

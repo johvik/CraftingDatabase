@@ -19,7 +19,7 @@ O>, value: t.mixed): A {
 
 interface FetchResult {
   text:string,
-  lastModified?:number,
+  lastModified?:Date,
 }
 
 export async function fetchWithTimeout(
@@ -33,8 +33,9 @@ export async function fetchWithTimeout(
   try {
     const res = await fetch(url, { signal: controller.signal, ...init });
     const text = await res.text();
-    const parsedLastModified = Date.parse(res.headers.get('Last-Modified') || '');
-    const lastModified = Number.isNaN(parsedLastModified) ? undefined : parsedLastModified;
+    const lastModifiedHeader = res.headers.get('Last-Modified');
+    const lastModified = lastModifiedHeader !== null
+      ? new Date(lastModifiedHeader) : undefined;
     return { text, lastModified };
   } finally {
     clearTimeout(timeout);

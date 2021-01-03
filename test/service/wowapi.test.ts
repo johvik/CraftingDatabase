@@ -1,6 +1,4 @@
-import {
-  Region, getAccessToken, getAuctionDataStatus, getItem,
-} from '../../src/service/wowapi';
+import { Region, getAccessToken, getItem } from '../../src/service/wowapi';
 
 let accessToken = '';
 
@@ -11,13 +9,6 @@ beforeAll(async () => {
 describe('getAccessToken', () => {
   it('should get EU', () => {
     expect(accessToken.length).toEqual(34);
-  });
-});
-
-describe.skip('getAuctionDataStatus', () => {
-  it('should get Draenor EU', async () => {
-    const files = await getAuctionDataStatus({ region: Region.EU, name: 'draenor' }, accessToken);
-    expect(files).not.toHaveLength(0);
   });
 });
 
