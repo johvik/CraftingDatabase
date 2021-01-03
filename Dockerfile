@@ -1,7 +1,7 @@
-FROM node:8.12.0-alpine
+FROM node:14.15-alpine
 EXPOSE 3000
 WORKDIR /app
-COPY *.json *.pem ./
+COPY .eslintrc.js *.json *.pem ./
 COPY src src
 RUN npm install && \
     npm run build && \

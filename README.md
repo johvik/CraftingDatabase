@@ -10,6 +10,6 @@ openssl req -newkey rsa:4096 -nodes -keyout key.pem -x509 -days 365 -out certifi
 docker-compose up -d
 
 # Add a realm
-docker-compose exec db mysql --user=cdb --password cdb
-# e.g: INSERT INTO realm (region, name) VALUES ("eu", "draenor");
+docker-compose exec db mysql --user=cdb --database=cdb --password
+# e.g: INSERT INTO connected_realm (connectedRealmId, region) VALUES (1096, "eu");
 ```
