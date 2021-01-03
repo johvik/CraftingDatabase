@@ -44,7 +44,10 @@ const AuctionItem = t.intersection([
     quantity: t.number,
   }),
   t.union([
-    t.type({ buyout: t.number }),
+    t.union([
+      t.type({ bid: t.number }),
+      t.type({ buyout: t.number }),
+    ]),
     t.type({ unit_price: t.number }),
   ]),
 ]);

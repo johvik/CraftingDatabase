@@ -76,7 +76,7 @@ export default class Auctions {
         let unitPrice = 0;
         if ('buyout' in i) {
           unitPrice = i.buyout / i.quantity;
-        } else {
+        } else if ('unit_price' in i) {
           unitPrice = i.unit_price;
         }
 
