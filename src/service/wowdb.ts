@@ -17,7 +17,7 @@ const Spell = t.type({
   Rank: t.string,
   Reagents: t.refinement(t.array(Reagent), (reagents) => reagents.length !== 0),
   Name: t.refinement(t.string, (name) => !name.startsWith('REUSE ME')),
-  Effects: t.refinement(t.array(Effect), (effects) => effects.length === 1),
+  Effects: t.refinement(t.array(Effect), (effects) => effects.length >= 1),
 });
 
 export default async function getRecipe(spellId: number) {
@@ -35,6 +35,9 @@ export default async function getRecipe(spellId: number) {
     (reagent) => ({ id: reagent.Item, quantity: reagent.ItemQty }),
   );
   const effect = spell.Effects[0];
+  if (effect.Item === 0) {
+    throw new Error(`Effect item ID is zero ${spellId}`);
+  }
   const quantity = Math.max(1, effect.BasePoints);
 
   return {

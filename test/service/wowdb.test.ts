@@ -62,4 +62,17 @@ describe('getRecipe', () => {
       crafts: { id: 160322, quantity: 1 },
     });
   });
+
+  it('should get Eternal Grace', async () => {
+    const recipe = await getRecipe(309621);
+    expect(recipe).toEqual({
+      name: 'Eternal Grace',
+      rank: 0,
+      trade: 'trade_engraving',
+      reagents: [
+        { id: 172232, quantity: 2 },
+        { id: 172231, quantity: 3 }],
+      crafts: { id: 172367, quantity: 1 },
+    });
+  });
 });
