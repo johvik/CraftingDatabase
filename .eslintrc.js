@@ -16,6 +16,7 @@ module.exports = {
     '@typescript-eslint',
   ],
   rules: {
+    '@typescript-eslint/type-annotation-spacing': 'error',
     // TODO: Review these:
     'no-restricted-syntax': 'off',
     'no-await-in-loop': 'off',

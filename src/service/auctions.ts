@@ -60,7 +60,7 @@ export default class Auctions {
     await repository.save(auctions, { chunk: Math.max(1, Math.ceil(auctions.length / 1000)) });
   }
 
-  private async updateAuctionData(connectedRealm: ConnectedRealm, accessToken:string) {
+  private async updateAuctionData(connectedRealm: ConnectedRealm, accessToken: string) {
     const lastUpdate = this.lastUpdates.get(connectedRealm.id);
     const data = await getAuctionData(
       connectedRealm.region, connectedRealm.connectedRealmId, accessToken,
@@ -102,7 +102,7 @@ export default class Auctions {
     }
   }
 
-  async updateAll(accessToken:string) {
+  async updateAll(accessToken: string) {
     if (this.updating) {
       console.log('Auctions#updateAll', 'already updating', new Date());
     } else {

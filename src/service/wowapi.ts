@@ -21,7 +21,7 @@ const TToken = t.type({
   access_token: t.string,
 });
 
-export async function getAccessToken(region:Region) {
+export async function getAccessToken(region: Region) {
   const url = `https://${region}.battle.net/oauth/token`;
   const credentials = Buffer.from(`${WOW_CLIENT_ID}:${WOW_CLIENT_SECRET}`).toString('base64');
   const formData = new FormData();
@@ -67,7 +67,7 @@ interface AuctionResult {
 }
 
 export async function getAuctionData(
-  region:Region, connectedRealmId: number, accessToken:string,
+  region: Region, connectedRealmId: number, accessToken: string,
 ): Promise<AuctionResult> {
   const url = `https://${region}.api.blizzard.com/data/wow/connected-realm/${connectedRealmId}/auctions?namespace=dynamic-${region}&access_token=${accessToken}`;
   const res = await fetchWithTimeout(url);
@@ -87,7 +87,7 @@ const MediaItem = t.type({
   assets: t.array(Asset),
 });
 
-export async function getMediaIcon(url:string, accessToken:string) {
+export async function getMediaIcon(url: string, accessToken: string) {
   const mediaUrl = `${url}&access_token=${accessToken}`;
   if (!mediaUrl.startsWith('https://eu.api.blizzard.com/')) {
     throw new Error(`Unexpected media URL ${mediaUrl}`);
@@ -109,7 +109,7 @@ const Item = t.type({
   purchase_price: t.number,
 });
 
-export async function getItem(itemId: number, accessToken:string) {
+export async function getItem(itemId: number, accessToken: string) {
   const url = `https://eu.api.blizzard.com/data/wow/item/${itemId}?namespace=static-eu&locale=en_GB&access_token=${accessToken}`;
   const res = await fetchWithTimeout(url);
   const item = decodeOrThrow(Item, JSON.parse(res.text));

@@ -18,12 +18,12 @@ O>, value: t.mixed): A {
 }
 
 interface FetchResult {
-  text:string,
-  lastModified?:Date,
+  text: string,
+  lastModified?: Date,
 }
 
 export async function fetchWithTimeout(
-  url: string, init?:RequestInit,
+  url: string, init?: RequestInit,
 ): Promise<FetchResult> {
   const controller = new AbortController();
   const timeout = setTimeout(() => {

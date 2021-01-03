@@ -63,7 +63,7 @@ export default class Data {
     };
   }
 
-  async update(accessToken:string) {
+  async update(accessToken: string) {
     try {
       const result = await getAll();
       const now = new Date();
