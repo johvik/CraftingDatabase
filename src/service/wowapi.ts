@@ -38,12 +38,16 @@ export async function getAccessToken(region:Region) {
   return decodeOrThrow(TToken, JSON.parse(res.text)).access_token;
 }
 
-const AuctionItem = t.type({
-  item: t.type({ id: t.number }),
-  buyout: t.number,
-  unit_price: t.number,
-  quantity: t.number,
-});
+const AuctionItem = t.intersection([
+  t.type({
+    item: t.type({ id: t.number }),
+    quantity: t.number,
+  }),
+  t.union([
+    t.type({ buyout: t.number }),
+    t.type({ unit_price: t.number }),
+  ]),
+]);
 
 type IAuctionItem = t.TypeOf<typeof AuctionItem>;
 

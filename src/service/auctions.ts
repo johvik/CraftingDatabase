@@ -74,9 +74,9 @@ export default class Auctions {
       const map = new Map<number, MergedValue[]>();
       for (const i of data.auctions) {
         let unitPrice = 0;
-        if (i.buyout !== undefined) {
+        if ('buyout' in i) {
           unitPrice = i.buyout / i.quantity;
-        } else if (i.unit_price !== undefined) {
+        } else {
           unitPrice = i.unit_price;
         }
 
