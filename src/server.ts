@@ -44,8 +44,8 @@ async function load() {
   const app = express();
   app.use(compression());
 
-  app.get('/data', (_, res) => res.type('json').send(data.data.json()));
-  app.get('/auctions/:generatedConnectedRealmId(\\d+)', async (req, res) => {
+  app.get('/api/data', (_, res) => res.type('json').send(data.data.json()));
+  app.get('/api/auctions/:generatedConnectedRealmId(\\d+)', async (req, res) => {
     try {
       const auctions = await data.auctions.json(
         parseInt(req.params.generatedConnectedRealmId, 10), data.data,
@@ -55,7 +55,7 @@ async function load() {
       return res.sendStatus(404);
     }
   });
-  app.get('/auctions/lastUpdate', async (_, res) => res.type('json').send(data.auctions.lastUpdate()));
+  app.get('/api/auctions/lastUpdate', async (_, res) => res.type('json').send(data.auctions.lastUpdate()));
   app.use(express.static(path.join(__dirname, '..', 'static')));
 
   const options = {
