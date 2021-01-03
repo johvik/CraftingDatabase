@@ -23,12 +23,12 @@ interface FetchResult {
 }
 
 export async function fetchWithTimeout(
-  url: string, init?: RequestInit,
+  url: string, timeoutMs: number, init?: RequestInit,
 ): Promise<FetchResult> {
   const controller = new AbortController();
   const timeout = setTimeout(() => {
     controller.abort();
-  }, 5000);
+  }, timeoutMs);
 
   try {
     const res = await fetch(url, { signal: controller.signal, ...init });

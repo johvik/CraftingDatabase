@@ -27,7 +27,7 @@ export async function getAccessToken(region: Region) {
   const formData = new FormData();
   formData.append('grant_type', 'client_credentials');
 
-  const res = await fetchWithTimeout(url, {
+  const res = await fetchWithTimeout(url, 5000, {
     method: 'POST',
     headers: new Headers({
       Authorization: `Basic ${credentials}`,
@@ -70,7 +70,7 @@ export async function getAuctionData(
   region: Region, connectedRealmId: number, accessToken: string,
 ): Promise<AuctionResult> {
   const url = `https://${region}.api.blizzard.com/data/wow/connected-realm/${connectedRealmId}/auctions?namespace=dynamic-${region}&access_token=${accessToken}`;
-  const res = await fetchWithTimeout(url);
+  const res = await fetchWithTimeout(url, 30000);
   const data = decodeOrThrow(AuctionData, JSON.parse(res.text));
   if (data.connected_realm.href.indexOf(connectedRealmId.toString()) === -1) {
     throw new Error(`ConnectedRealmId not found ${connectedRealmId}`);
@@ -92,7 +92,7 @@ export async function getMediaIcon(url: string, accessToken: string) {
   if (!mediaUrl.startsWith('https://eu.api.blizzard.com/')) {
     throw new Error(`Unexpected media URL ${mediaUrl}`);
   }
-  const res = await fetchWithTimeout(mediaUrl);
+  const res = await fetchWithTimeout(mediaUrl, 5000);
   const mediaItem = decodeOrThrow(MediaItem, JSON.parse(res.text));
 
   const icons = mediaItem.assets.filter((asset) => asset.key === 'icon');
@@ -111,7 +111,7 @@ const Item = t.type({
 
 export async function getItem(itemId: number, accessToken: string) {
   const url = `https://eu.api.blizzard.com/data/wow/item/${itemId}?namespace=static-eu&locale=en_GB&access_token=${accessToken}`;
-  const res = await fetchWithTimeout(url);
+  const res = await fetchWithTimeout(url, 5000);
   const item = decodeOrThrow(Item, JSON.parse(res.text));
   const icon = await getMediaIcon(item.media.key.href, accessToken);
   return {

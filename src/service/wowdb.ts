@@ -22,7 +22,7 @@ const Spell = t.type({
 
 export default async function getRecipe(spellId: number) {
   const url = `https://www.wowdb.com/api/spell/${spellId}`;
-  const res = await fetchWithTimeout(url);
+  const res = await fetchWithTimeout(url, 5000);
   // Remove the extra parentheses in the body
   const spell = decodeOrThrow(Spell, JSON.parse(res.text.slice(1, -1)));
   const rankMatch = spell.Rank.match(/.* (\d+)/);

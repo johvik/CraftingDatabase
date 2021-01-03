@@ -76,7 +76,7 @@ async function load() {
     await Auctions.deleteOld();
     await data.data.update(accessToken);
   }).start();
-  new CronJob('00 */2 * * * *', async () => {
+  new CronJob('00 */5 * * * *', async () => {
     await data.auctions.updateAll(accessToken);
   }).start();
   console.info('Jobs started', new Date());
