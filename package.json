@@ -10,7 +10,8 @@
   },
   "scripts": {
     "start": "node dist/server.js",
-    "build": "rimraf dist/ dist.tmp/ && tsc && eslint . --ext .ts && rimraf dist/test/ && move-cli dist/src dist.tmp && rimraf dist/ && move-cli dist.tmp dist",
+    "build": "rimraf dist/ dist.tmp/ && tsc && rimraf dist/test/ && move-cli dist/src dist.tmp && rimraf dist/ && move-cli dist.tmp dist",
+    "eslint": "eslint . --ext .ts",
     "test": "jest --coverage --verbose"
   },
   "devDependencies": {
