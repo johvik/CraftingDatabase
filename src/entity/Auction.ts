@@ -1,4 +1,4 @@
-import { Entity, PrimaryColumn, Column } from 'typeorm';
+import { Entity, PrimaryColumn, Column } from "typeorm";
 
 @Entity()
 export default class Auction {
@@ -26,35 +26,35 @@ export default class Auction {
    * so the numbers are stored as whole integers
    */
 
-  @Column('bigint')
+  @Column("bigint")
   // @ts-ignore
   lowest: number;
 
-  @Column('bigint')
+  @Column("bigint")
   // @ts-ignore
   farOut: number; // Lowest price that is not "far out"
 
-  @Column('bigint')
+  @Column("bigint")
   // @ts-ignore
   outlier: number; // Lowest price that is not an outlier
 
-  @Column('bigint')
+  @Column("bigint")
   // @ts-ignore
   mean: number;
 
-  @Column('bigint')
+  @Column("bigint")
   // @ts-ignore
   firstQuartile: number;
 
-  @Column('bigint')
+  @Column("bigint")
   // @ts-ignore
   secondQuartile: number; // Same as median
 
-  @Column('bigint')
+  @Column("bigint")
   // @ts-ignore
   thirdQuartile: number;
 
-  @Column('bigint')
+  @Column("bigint")
   // @ts-ignore
   standardDeviation: number;
 }

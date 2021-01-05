@@ -1,15 +1,14 @@
-import { AbortController } from 'abort-controller';
-import { isLeft } from 'fp-ts/lib/Either';
-import * as t from 'io-ts';
-import { failure } from 'io-ts/lib/PathReporter';
-import fetch, { RequestInit } from 'node-fetch';
+import { AbortController } from "abort-controller";
+import { isLeft } from "fp-ts/lib/Either";
+import * as t from "io-ts";
+import { failure } from "io-ts/lib/PathReporter";
+import fetch, { RequestInit } from "node-fetch";
 
 export function NeverUndefined<T>(item: T | undefined): T {
   return item as T;
 }
 
-export function decodeOrThrow<A, O>(type: t.Type<A,
-O>, value: t.mixed): A {
+export function decodeOrThrow<A, O>(type: t.Type<A, O>, value: t.mixed): A {
   const decoded = type.decode(value);
   if (isLeft(decoded)) {
     throw new Error(failure(decoded.left).join());
@@ -18,12 +17,14 @@ O>, value: t.mixed): A {
 }
 
 interface FetchResult {
-  text: string,
-  lastModified?: Date,
+  text: string;
+  lastModified?: Date;
 }
 
 export async function fetchWithTimeout(
-  url: string, timeoutMs: number, init?: RequestInit,
+  url: string,
+  timeoutMs: number,
+  init?: RequestInit
 ): Promise<FetchResult> {
   const controller = new AbortController();
   const timeout = setTimeout(() => {
@@ -33,9 +34,9 @@ export async function fetchWithTimeout(
   try {
     const res = await fetch(url, { signal: controller.signal, ...init });
     const text = await res.text();
-    const lastModifiedHeader = res.headers.get('Last-Modified');
-    const lastModified = lastModifiedHeader !== null
-      ? new Date(lastModifiedHeader) : undefined;
+    const lastModifiedHeader = res.headers.get("Last-Modified");
+    const lastModified =
+      lastModifiedHeader !== null ? new Date(lastModifiedHeader) : undefined;
     return { text, lastModified };
   } finally {
     clearTimeout(timeout);
@@ -43,8 +44,8 @@ export async function fetchWithTimeout(
 }
 
 export type MergedValue = {
-  value: number,
-  count: number
+  value: number;
+  count: number;
 };
 
 export function getTotalCount(values: MergedValue[]) {
@@ -81,16 +82,22 @@ export function getQuartile(values: MergedValue[], totalCount: number) {
 }
 
 export function getMean(values: MergedValue[], totalCount: number): number {
-  return values.reduce((sum, value) => sum + (value.value * value.count), 0) / totalCount;
+  return (
+    values.reduce((sum, value) => sum + value.value * value.count, 0) /
+    totalCount
+  );
 }
 
 export function getStandardDeviation(
-  values: MergedValue[], mean: number, totalCount: number,
+  values: MergedValue[],
+  mean: number,
+  totalCount: number
 ): number {
-  const variance = values.reduce((sum, value) => {
-    const diff = value.value - mean;
-    return sum + ((diff * diff) * value.count);
-  }, 0) / totalCount;
+  const variance =
+    values.reduce((sum, value) => {
+      const diff = value.value - mean;
+      return sum + diff * diff * value.count;
+    }, 0) / totalCount;
   return Math.sqrt(variance);
 }
 

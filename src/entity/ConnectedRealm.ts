@@ -1,7 +1,5 @@
-import {
-  Entity, PrimaryColumn, Generated, Column, Index,
-} from 'typeorm';
-import { Region } from '../service/wowapi';
+import { Entity, PrimaryColumn, Generated, Column, Index } from "typeorm";
+import { Region } from "../service/wowapi";
 
 @Entity()
 export default class ConnectedRealm {

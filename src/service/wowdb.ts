@@ -1,5 +1,5 @@
-import * as t from 'io-ts';
-import { decodeOrThrow, fetchWithTimeout } from '../utils';
+import * as t from "io-ts";
+import { decodeOrThrow, fetchWithTimeout } from "../utils";
 
 const Reagent = t.type({
   Item: t.number,
@@ -16,7 +16,7 @@ const Spell = t.type({
   Icon: t.string,
   Rank: t.string,
   Reagents: t.refinement(t.array(Reagent), (reagents) => reagents.length !== 0),
-  Name: t.refinement(t.string, (name) => !name.startsWith('REUSE ME')),
+  Name: t.refinement(t.string, (name) => !name.startsWith("REUSE ME")),
   Effects: t.refinement(t.array(Effect), (effects) => effects.length >= 1),
 });
 
@@ -31,9 +31,10 @@ export default async function getRecipe(spellId: number) {
   }
   const rank = rankMatch ? parseInt(rankMatch[1], 10) : 0;
   const trade = spell.Icon;
-  const reagents = spell.Reagents.map(
-    (reagent) => ({ id: reagent.Item, quantity: reagent.ItemQty }),
-  );
+  const reagents = spell.Reagents.map((reagent) => ({
+    id: reagent.Item,
+    quantity: reagent.ItemQty,
+  }));
   const effect = spell.Effects[0];
   if (effect.Item === 0) {
     throw new Error(`Effect item ID is zero ${spellId}`);

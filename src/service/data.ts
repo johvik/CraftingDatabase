@@ -1,11 +1,11 @@
-import * as t from 'io-ts';
-import { readFileSync, writeFileSync } from 'fs';
-import path from 'path';
-import { DateFromISOString } from 'io-ts-types/lib/DateFromISOString';
-import { getAll } from './wowhead';
-import { decodeOrThrow, NeverUndefined } from '../utils';
-import getRecipe from './wowdb';
-import { getItem } from './wowapi';
+import * as t from "io-ts";
+import { readFileSync, writeFileSync } from "fs";
+import path from "path";
+import { DateFromISOString } from "io-ts-types/lib/DateFromISOString";
+import { getAll } from "./wowhead";
+import { decodeOrThrow, NeverUndefined } from "../utils";
+import getRecipe from "./wowdb";
+import { getItem } from "./wowapi";
 
 const TItem = t.intersection([
   t.type({
@@ -37,16 +37,22 @@ const TRecipe = t.intersection([
 ]);
 
 const TData = t.type({
-  items: t.dictionary(t.refinement(t.string, (key) => /^\d+$/.test(key)), t.union([TItem, t.undefined])),
-  recipes: t.dictionary(t.refinement(t.string, (key) => /^\d+$/.test(key)), t.union([TRecipe, t.undefined])),
+  items: t.dictionary(
+    t.refinement(t.string, (key) => /^\d+$/.test(key)),
+    t.union([TItem, t.undefined])
+  ),
+  recipes: t.dictionary(
+    t.refinement(t.string, (key) => /^\d+$/.test(key)),
+    t.union([TRecipe, t.undefined])
+  ),
 });
 
 type IData = t.TypeOf<typeof TData>;
 
 export default class Data {
-  private readonly file = path.join(__dirname, '..', '..', 'data.json');
+  private readonly file = path.join(__dirname, "..", "..", "data.json");
 
-  private jsonCache = '{}';
+  private jsonCache = "{}";
 
   private data: IData = this.loadFromFile();
 
@@ -55,7 +61,7 @@ export default class Data {
       this.jsonCache = readFileSync(this.file).toString();
       return decodeOrThrow(TData, JSON.parse(this.jsonCache));
     } catch (error) {
-      console.debug('Data#loadFromFile', error, new Date());
+      console.debug("Data#loadFromFile", error, new Date());
     }
     return {
       items: {},
@@ -116,7 +122,7 @@ export default class Data {
         }
       }
     } catch (error) {
-      console.debug('Data#update', error, new Date());
+      console.debug("Data#update", error, new Date());
     }
 
     this.jsonCache = JSON.stringify(this.data);
