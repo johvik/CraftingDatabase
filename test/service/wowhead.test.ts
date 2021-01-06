@@ -12,20 +12,20 @@ describe("parsePage", () => {
     const result = parsePage(content, "cooking");
 
     expect(Object.keys(result)).toEqual(["items", "recipes"]);
-    expect(Object.keys(result.items)).toHaveLength(59);
-    expect(Object.keys(result.recipes)).toHaveLength(31);
+    expect(result.items.size).toEqual(59);
+    expect(result.recipes.size).toEqual(31);
 
-    expect(result.items[172059]).toEqual({
+    expect(result.items.get(172059)).toEqual({
       name: "Rich Grazer Milk",
       icon: "inv_drink_milk_03",
       price: 42500,
     });
-    expect(result.items[172048]).toEqual({
+    expect(result.items.get(172048)).toEqual({
       name: "Meaty Apple Dumplings",
       icon: "inv_cooking_90_meatyappledumplings",
     });
 
-    expect(result.recipes[308400]).toEqual({
+    expect(result.recipes.get(308400)).toEqual({
       crafts: {
         id: 172041,
         quantity: 3,
@@ -63,15 +63,15 @@ describe("parsePage", () => {
     const result = parsePage(content, "enchanting");
 
     expect(Object.keys(result)).toEqual(["items", "recipes"]);
-    expect(Object.keys(result.items)).toHaveLength(23);
-    expect(Object.keys(result.recipes)).toHaveLength(45);
+    expect(result.items.size).toEqual(23);
+    expect(result.recipes.size).toEqual(45);
 
-    expect(result.items[181990]).toEqual({
+    expect(result.items.get(181990)).toEqual({
       name: "Twilight Dust",
       icon: "inv_enchanting_80_shadowdust",
     });
 
-    expect(result.recipes[323609]).toEqual({
+    expect(result.recipes.get(323609)).toEqual({
       name: "Soul Treads",
       icon: "trade_engraving",
       profession: "enchanting",
@@ -82,7 +82,7 @@ describe("parsePage", () => {
         },
       ],
     });
-    expect(result.recipes[309638]).toEqual({
+    expect(result.recipes.get(309638)).toEqual({
       crafts: {
         id: 172439,
         quantity: 1,
@@ -103,7 +103,7 @@ describe("getAll", () => {
     const result = await getAll();
 
     expect(Object.keys(result)).toEqual(["items", "recipes"]);
-    expect(Object.keys(result.items).length).toBeGreaterThan(300);
-    expect(Object.keys(result.recipes).length).toBeGreaterThan(500);
+    expect(result.items.size).toBeGreaterThan(300);
+    expect(result.recipes.size).toBeGreaterThan(500);
   }, 100000);
 });

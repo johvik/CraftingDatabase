@@ -77,58 +77,64 @@ export function parsePage(content: string, profession: string) {
   const items = parseWh(matchedItems);
   const spells = parseWh(matchedSpells);
 
-  const decodedItems: {
-    [id: number]: Item | undefined;
-  } = {};
-  for (const i of items) {
-    const item = decodeOrThrow(GItem, i.data);
-    decodedItems[i.id] = {
-      name: item.name_enus,
-      icon: item.icon,
-      price: item.jsonequip.buyprice,
-    };
-  }
+  const decodedItems = new Map<number, Item>(
+    items.map((i) => {
+      const item = decodeOrThrow(GItem, i.data);
+      return [
+        i.id,
+        {
+          name: item.name_enus,
+          icon: item.icon,
+          price: item.jsonequip.buyprice,
+        },
+      ];
+    })
+  );
 
-  const decodedSpells: {
-    [id: number]: Spell | undefined;
-  } = {};
-  for (const i of spells) {
-    const spell = decodeOrThrow(GSpell, i.data);
-    decodedSpells[i.id] = {
-      name: spell.name_enus,
-      icon: spell.icon,
-    };
-  }
+  const decodedSpells = new Map(
+    spells.map((i) => {
+      const spell = decodeOrThrow(GSpell, i.data);
+      return [
+        i.id,
+        <Spell>{
+          name: spell.name_enus,
+          icon: spell.icon,
+        },
+      ];
+    })
+  );
 
-  const decodedRecipes: {
-    [id: number]: Recipe | undefined;
-  } = {};
-  for (const i of recipes) {
-    const recipe = decodeOrThrow(ListViewSpell, i);
-    const spell = decodedSpells[i.id];
-    if (!spell) {
-      throw Error(`Matching spell not found ${i.id}`);
-    }
+  const decodedRecipes = new Map<number, Recipe>(
+    recipes.map((i: any) => {
+      const recipe = decodeOrThrow(ListViewSpell, i);
+      const spell = decodedSpells.get(recipe.id);
+      if (!spell) {
+        throw Error(`Matching spell not found ${recipe.id}`);
+      }
 
-    const crafts = recipe.creates
-      ? {
-          id: recipe.creates[0],
-          quantity: recipe.creates[1],
-        }
-      : undefined;
-    const reagents: RecipeItem[] = recipe.reagents.map((value) => ({
-      id: value[0],
-      quantity: value[1],
-    }));
+      const crafts = recipe.creates
+        ? {
+            id: recipe.creates[0],
+            quantity: recipe.creates[1],
+          }
+        : undefined;
+      const reagents: RecipeItem[] = recipe.reagents.map((value) => ({
+        id: value[0],
+        quantity: value[1],
+      }));
 
-    decodedRecipes[i.id] = {
-      crafts,
-      name: spell.name,
-      icon: spell.icon,
-      profession,
-      reagents,
-    };
-  }
+      return [
+        recipe.id,
+        {
+          crafts,
+          name: spell.name,
+          icon: spell.icon,
+          profession,
+          reagents,
+        },
+      ];
+    })
+  );
 
   return {
     items: decodedItems,
@@ -149,23 +155,19 @@ const professions = [
 ];
 
 export async function getAll() {
-  let items: {
-    [id: number]: Item | undefined;
-  } = {};
-  let recipes: {
-    [id: number]: Recipe | undefined;
-  } = {};
+  const allItems = new Map<number, Item>();
+  const allRecipes = new Map<number, Recipe>();
   for (const i of professions) {
     const category = i === "cooking" ? "secondary-skills" : "professions";
     const url = `https://www.wowhead.com/spells/${category}/${i}/live-only:on?filter=16:20;9:1;0:0`;
     const res = await fetchWithTimeout(url, 5000);
     const data = parsePage(res.text, i);
-    items = { ...items, ...data.items };
-    recipes = { ...recipes, ...data.recipes };
+    data.items.forEach((value, key) => allItems.set(key, value));
+    data.recipes.forEach((value, key) => allRecipes.set(key, value));
   }
 
   return {
-    items,
-    recipes,
+    items: allItems,
+    recipes: allRecipes,
   };
 }

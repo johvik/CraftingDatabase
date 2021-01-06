@@ -73,20 +73,18 @@ export default class Data {
     try {
       const result = await getAll();
       const now = new Date();
-      for (const i in result.items) {
-        const item = NeverUndefined(result.items[i]);
-        this.data.items[i] = { ...{ updated: now }, ...item };
-      }
-      for (const i in result.recipes) {
-        const recipe = NeverUndefined(result.recipes[i]);
-        const oldRecipe = this.data.recipes[i];
+      result.items.forEach((item, key) => {
+        this.data.items[key] = { ...{ updated: now }, ...item };
+      });
+      for (const [key, recipe] of result.recipes) {
+        const oldRecipe = this.data.recipes[key];
         const oldCrafts = oldRecipe ? oldRecipe.crafts : undefined;
         const newRecipe = { ...{ updated: now }, ...recipe };
 
         // Update undefined crafts
         if (!newRecipe.crafts) {
           try {
-            const r = await getRecipe(Number(i));
+            const r = await getRecipe(key);
             if (r.crafts.id !== 0) {
               newRecipe.crafts = {
                 id: r.crafts.id,
@@ -94,14 +92,14 @@ export default class Data {
               };
             }
           } catch (error) {
-            console.debug(`Data#update undefined ${i}`, error, new Date());
+            console.debug(`Data#update undefined ${key}`, error, new Date());
             // Use the old crafts if possible
             if (oldCrafts) {
               newRecipe.crafts = oldCrafts;
             }
           }
         }
-        this.data.recipes[i] = newRecipe;
+        this.data.recipes[key] = newRecipe;
       }
 
       // Update unknown items (and items not updated now)
