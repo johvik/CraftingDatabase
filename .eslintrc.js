@@ -21,6 +21,5 @@ module.exports = {
     // TODO: Review these:
     "no-restricted-syntax": "off",
     "no-await-in-loop": "off",
-    "guard-for-in": "off",
   },
 };
