@@ -63,6 +63,7 @@ export default class Data {
     } catch (error) {
       console.debug("Data#loadFromFile", error, new Date());
     }
+    this.jsonCache = "{}";
     return {
       items: {},
       recipes: {},
