@@ -1,4 +1,5 @@
-import { Region, getAccessToken, getItem } from "../../src/service/wowapi";
+import Region from "../../src/region";
+import { getAccessToken, getItem } from "../../src/service/wowapi";
 
 let accessToken = "";
 

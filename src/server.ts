@@ -18,7 +18,8 @@ import ConnectedRealm from "./entity/ConnectedRealm";
 import Auction from "./entity/Auction";
 import Auctions from "./service/auctions";
 import Data from "./service/data";
-import { getAccessToken, Region } from "./service/wowapi";
+import { getAccessToken } from "./service/wowapi";
+import Region from "./region";
 
 async function load() {
   await createConnection({

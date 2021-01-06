@@ -3,18 +3,12 @@ import FormData from "form-data";
 import { Headers } from "node-fetch";
 import { WOW_CLIENT_ID, WOW_CLIENT_SECRET } from "../secrets";
 import { decodeOrThrow, fetchWithTimeout } from "../utils";
+import Region from "../region";
 
 export class Quotas {
   static readonly requestsPerHour = 36000;
 
   static readonly requestsPerSecond = 100;
-}
-
-export enum Region {
-  EU = "eu",
-  KR = "kr",
-  TW = "tw",
-  US = "us",
 }
 
 const TToken = t.type({
