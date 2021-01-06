@@ -3,7 +3,7 @@ import { readFileSync, writeFileSync } from "fs";
 import path from "path";
 import { DateFromISOString } from "io-ts-types/lib/DateFromISOString";
 import { getAll } from "./wowhead";
-import { decodeOrThrow, NeverUndefined } from "../utils";
+import { decodeOrThrow } from "../utils";
 import getRecipe from "./wowdb";
 import { getItem } from "./wowapi";
 
@@ -37,36 +37,37 @@ const TRecipe = t.intersection([
 ]);
 
 const TData = t.type({
-  items: t.dictionary(
-    t.refinement(t.string, (key) => /^\d+$/.test(key)),
-    t.union([TItem, t.undefined])
-  ),
-  recipes: t.dictionary(
-    t.refinement(t.string, (key) => /^\d+$/.test(key)),
-    t.union([TRecipe, t.undefined])
-  ),
+  items: t.array(t.tuple([t.number, TItem])),
+  recipes: t.array(t.tuple([t.number, TRecipe])),
 });
 
-type IData = t.TypeOf<typeof TData>;
+interface StoredData {
+  items: Map<number, t.TypeOf<typeof TItem>>;
+  recipes: Map<number, t.TypeOf<typeof TRecipe>>;
+}
 
 export default class Data {
   private readonly file = path.join(__dirname, "..", "..", "data.json");
 
   private jsonCache = "{}";
 
-  private data: IData = this.loadFromFile();
+  private data: StoredData = this.loadFromFile();
 
-  private loadFromFile(): IData {
+  private loadFromFile(): StoredData {
     try {
       this.jsonCache = readFileSync(this.file).toString();
-      return decodeOrThrow(TData, JSON.parse(this.jsonCache));
+      const storedData = decodeOrThrow(TData, JSON.parse(this.jsonCache));
+      return {
+        items: new Map(storedData.items),
+        recipes: new Map(storedData.recipes),
+      };
     } catch (error) {
       console.debug("Data#loadFromFile", error, new Date());
     }
     this.jsonCache = "{}";
     return {
-      items: {},
-      recipes: {},
+      items: new Map(),
+      recipes: new Map(),
     };
   }
 
@@ -75,10 +76,10 @@ export default class Data {
       const result = await getAll();
       const now = new Date();
       result.items.forEach((item, key) => {
-        this.data.items[key] = { ...{ updated: now }, ...item };
+        this.data.items.set(key, { ...{ updated: now }, ...item });
       });
       for (const [key, recipe] of result.recipes) {
-        const oldRecipe = this.data.recipes[key];
+        const oldRecipe = this.data.recipes.get(key);
         const oldCrafts = oldRecipe ? oldRecipe.crafts : undefined;
         const newRecipe = { ...{ updated: now }, ...recipe };
 
@@ -100,23 +101,22 @@ export default class Data {
             }
           }
         }
-        this.data.recipes[key] = newRecipe;
+        this.data.recipes.set(key, newRecipe);
       }
 
       // Update unknown items (and items not updated now)
-      for (const i in this.data.recipes) {
-        const { crafts } = NeverUndefined(this.data.recipes[i]);
+      for (const [, { crafts }] of this.data.recipes) {
         if (crafts) {
-          const oldItem = this.data.items[crafts.id];
+          const oldItem = this.data.items.get(crafts.id);
           if (!oldItem || oldItem.updated.getTime() !== now.getTime()) {
             const item = await getItem(crafts.id, accessToken);
             // Don't use the price here since the WOW APIs price information
             // seems to always be present
-            this.data.items[crafts.id] = {
+            this.data.items.set(crafts.id, {
               name: item.name,
               icon: item.icon,
               updated: now,
-            };
+            });
           }
         }
       }
@@ -124,21 +124,21 @@ export default class Data {
       console.debug("Data#update", error, new Date());
     }
 
-    this.jsonCache = JSON.stringify(this.data);
+    this.jsonCache = JSON.stringify({
+      items: [...this.data.items],
+      recipes: [...this.data.recipes],
+    });
     writeFileSync(this.file, this.jsonCache);
   }
 
   itemIds() {
     const itemIds = new Set<number>();
-    for (const i in this.data.recipes) {
-      const recipe = NeverUndefined(this.data.recipes[i]);
+    this.data.recipes.forEach((recipe) => {
       if (recipe.crafts && recipe.crafts.id !== 0) {
         itemIds.add(recipe.crafts.id);
       }
-      for (const reagent of recipe.reagents) {
-        itemIds.add(reagent.id);
-      }
-    }
+      recipe.reagents.forEach((reagent) => itemIds.add(reagent.id));
+    });
     return itemIds;
   }
 
