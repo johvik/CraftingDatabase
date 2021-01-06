@@ -2,14 +2,12 @@ import * as t from "io-ts";
 import { decodeOrThrow, fetchWithTimeout } from "../utils";
 
 function parseWh(data: string) {
-  const map = JSON.parse(
+  const object = JSON.parse(
     data.substring(data.indexOf("{"), data.lastIndexOf("}") + 1)
   );
-  const result = [];
-  for (const key in map) {
-    result.push({ id: Number(key), data: map[key] });
-  }
-  return result;
+  return Object.keys(object).map((key) => {
+    return { id: Number(key), data: object[key] };
+  });
 }
 
 const GItem = t.type({
