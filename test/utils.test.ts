@@ -8,6 +8,7 @@ import {
   getStandardDeviation,
   getMean,
   fetchWithTimeout,
+  fromEnum,
 } from "../src/utils";
 
 describe("decodeOrThrow", () => {
@@ -24,6 +25,26 @@ describe("decodeOrThrow", () => {
   it("should throw", () => {
     expect(() => {
       decodeOrThrow(Person, { name: "Name" });
+    }).toThrowError("Invalid value");
+  });
+});
+
+describe("fromEnum", () => {
+  enum TestEnum {
+    FOO = "foo",
+    BAR = "bar",
+  }
+
+  const TTestEnums = t.array(fromEnum("TestEnum", TestEnum));
+
+  it("should decode", () => {
+    const testEnums = decodeOrThrow(TTestEnums, ["foo", "bar", "foo"]);
+    expect(testEnums).toEqual([TestEnum.FOO, TestEnum.BAR, TestEnum.FOO]);
+  });
+
+  it("should throw", () => {
+    expect(() => {
+      decodeOrThrow(TTestEnums, ["foo", "bar2"]);
     }).toThrowError("Invalid value");
   });
 });
