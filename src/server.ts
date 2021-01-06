@@ -13,6 +13,7 @@ import {
   DB_PASSWORD,
   DB_DATABASE,
   SERVER_PORT,
+  CONNECTED_REALMS,
 } from "./secrets";
 import ConnectedRealm from "./entity/ConnectedRealm";
 import Auction from "./entity/Auction";
@@ -77,6 +78,14 @@ async function load() {
   createServer(options, app).listen(SERVER_PORT, () =>
     console.info("Express started", new Date())
   );
+
+  // Add connected realms during startup
+  CONNECTED_REALMS.forEach(async (connectedRealm) => {
+    await Auctions.storeConnectedRealm(
+      connectedRealm.connectedRealmId,
+      connectedRealm.region
+    );
+  });
 
   console.info("Starting initial update", new Date());
   // TODO Update access token periodically

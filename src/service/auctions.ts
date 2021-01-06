@@ -10,6 +10,7 @@ import { getAuctionData } from "./wowapi";
 import Auction from "../entity/Auction";
 import Data from "./data";
 import ConnectedRealm from "../entity/ConnectedRealm";
+import Region from "../region";
 
 type LastUpdateInfo = {
   lastAttempt: Date;
@@ -21,6 +22,23 @@ export default class Auctions {
   private updating = false;
 
   private lastUpdates = new Map<number, LastUpdateInfo>();
+
+  static async storeConnectedRealm(
+    connectedRealmId: number,
+    region: Region
+  ): Promise<number> {
+    const repository = getRepository(ConnectedRealm);
+    const connectedRealm = {
+      connectedRealmId,
+      region,
+    };
+    const result = await repository.findOne(connectedRealm);
+    if (result) {
+      return result.id;
+    }
+    const newRealm = repository.create(connectedRealm);
+    return (await repository.save(newRealm)).id;
+  }
 
   private static async storeAuctionData(
     generatedConnectedRealmId: number,
