@@ -157,14 +157,17 @@ const professions = [
 export async function getAll() {
   const allItems = new Map<number, Item>();
   const allRecipes = new Map<number, Recipe>();
-  for (const i of professions) {
+
+  // Fetch one at a time in sequence
+  await professions.reduce(async (promise, i) => {
+    await promise;
     const category = i === "cooking" ? "secondary-skills" : "professions";
     const url = `https://www.wowhead.com/spells/${category}/${i}/live-only:on?filter=16:20;9:1;0:0`;
     const res = await fetchWithTimeout(url, 5000);
     const data = parsePage(res.text, i);
     data.items.forEach((value, key) => allItems.set(key, value));
     data.recipes.forEach((value, key) => allRecipes.set(key, value));
-  }
+  }, Promise.resolve());
 
   return {
     items: allItems,

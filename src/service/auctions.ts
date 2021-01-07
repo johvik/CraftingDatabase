@@ -158,13 +158,17 @@ export default class Auctions {
     } else {
       this.updating = true;
       const connectedRealms = await getRepository(ConnectedRealm).find();
-      for (const i of connectedRealms) {
+
+      // Update one at a time in sequence
+      await connectedRealms.reduce(async (promise, i) => {
+        await promise;
         try {
           await this.updateAuctionData(i, accessToken);
         } catch (error) {
           console.debug("Auctions#updateAll", error, new Date());
         }
-      }
+      }, Promise.resolve());
+
       this.updating = false;
     }
   }

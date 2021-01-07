@@ -78,7 +78,10 @@ export default class Data {
       result.items.forEach((item, key) => {
         this.data.items.set(key, { ...{ updated: now }, ...item });
       });
-      for (const [key, recipe] of result.recipes) {
+
+      // Get recipes one at a time in sequence
+      await [...result.recipes].reduce(async (promise, [key, recipe]) => {
+        await promise;
         const oldRecipe = this.data.recipes.get(key);
         const oldCrafts = oldRecipe ? oldRecipe.crafts : undefined;
         const newRecipe = { ...{ updated: now }, ...recipe };
@@ -102,10 +105,12 @@ export default class Data {
           }
         }
         this.data.recipes.set(key, newRecipe);
-      }
+      }, Promise.resolve());
 
-      // Update unknown items (and items not updated now)
-      for (const [, { crafts }] of this.data.recipes) {
+      // Update unknown items (and items not updated now) one at a time in sequence
+      const values = [...this.data.recipes.values()];
+      await values.reduce(async (promise, { crafts }) => {
+        await promise;
         if (crafts) {
           const oldItem = this.data.items.get(crafts.id);
           if (!oldItem || oldItem.updated.getTime() !== now.getTime()) {
@@ -119,7 +124,7 @@ export default class Data {
             });
           }
         }
-      }
+      }, Promise.resolve());
     } catch (error) {
       console.debug("Data#update", error, new Date());
     }

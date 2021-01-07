@@ -80,12 +80,14 @@ async function load() {
   );
 
   // Add connected realms during startup
-  for (const connectedRealm of CONNECTED_REALMS) {
-    await Auctions.storeConnectedRealm(
-      connectedRealm.connectedRealmId,
-      connectedRealm.region
-    );
-  }
+  await Promise.all(
+    CONNECTED_REALMS.map(async (connectedRealm) => {
+      await Auctions.storeConnectedRealm(
+        connectedRealm.connectedRealmId,
+        connectedRealm.region
+      );
+    })
+  );
 
   console.info("Starting initial update", new Date());
   // TODO Update access token periodically
