@@ -1,26 +1,26 @@
-import "reflect-metadata";
-import { createConnection } from "typeorm";
-import express from "express";
 import compression from "compression";
 import { CronJob } from "cron";
+import express from "express";
 import { readFileSync } from "fs";
 import { createServer } from "https";
 import path from "path";
+import "reflect-metadata";
+import { createConnection } from "typeorm";
+import Auction from "./entity/Auction";
+import ConnectedRealm from "./entity/ConnectedRealm";
+import Region from "./region";
 import {
+  CONNECTED_REALMS,
+  DB_DATABASE,
   DB_HOST,
+  DB_PASSWORD,
   DB_PORT,
   DB_USERNAME,
-  DB_PASSWORD,
-  DB_DATABASE,
   SERVER_PORT,
-  CONNECTED_REALMS,
 } from "./secrets";
-import ConnectedRealm from "./entity/ConnectedRealm";
-import Auction from "./entity/Auction";
 import Auctions from "./service/auctions";
 import Data from "./service/data";
 import { getAccessToken } from "./service/wowapi";
-import Region from "./region";
 
 async function load() {
   await createConnection({

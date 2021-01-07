@@ -1,14 +1,14 @@
 import * as t from "io-ts";
 import {
   decodeOrThrow,
-  MergedValue,
-  getQuartile,
-  getTotalCount,
   delay,
-  getStandardDeviation,
-  getMean,
   fetchWithTimeout,
   fromEnum,
+  getMean,
+  getQuartile,
+  getStandardDeviation,
+  getTotalCount,
+  MergedValue,
 } from "../src/utils";
 
 describe("decodeOrThrow", () => {

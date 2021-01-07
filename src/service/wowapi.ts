@@ -1,9 +1,9 @@
-import * as t from "io-ts";
 import FormData from "form-data";
+import * as t from "io-ts";
 import { Headers } from "node-fetch";
+import Region from "../region";
 import { WOW_CLIENT_ID, WOW_CLIENT_SECRET } from "../secrets";
 import { decodeOrThrow, fetchWithTimeout } from "../utils";
-import Region from "../region";
 
 export class Quotas {
   static readonly requestsPerHour = 36000;

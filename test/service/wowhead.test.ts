@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import { parsePage, getAll } from "../../src/service/wowhead";
+import { getAll, parsePage } from "../../src/service/wowhead";
 
 describe("parsePage", () => {
   it("should parse cooking", () => {

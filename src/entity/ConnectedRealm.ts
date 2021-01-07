@@ -1,4 +1,4 @@
-import { Entity, PrimaryColumn, Generated, Column, Index } from "typeorm";
+import { Column, Entity, Generated, Index, PrimaryColumn } from "typeorm";
 import Region from "../region";
 
 @Entity()

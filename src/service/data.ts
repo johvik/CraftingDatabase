@@ -1,11 +1,11 @@
-import * as t from "io-ts";
 import { readFileSync, writeFileSync } from "fs";
-import path from "path";
+import * as t from "io-ts";
 import { DateFromISOString } from "io-ts-types/lib/DateFromISOString";
-import { getAll } from "./wowhead";
+import path from "path";
 import { decodeOrThrow } from "../utils";
-import getRecipe from "./wowdb";
 import { getItem } from "./wowapi";
+import getRecipe from "./wowdb";
+import { getAll } from "./wowhead";
 
 const TItem = t.intersection([
   t.type({

@@ -1,16 +1,16 @@
 import { getRepository } from "typeorm";
-import {
-  MergedValue,
-  getTotalCount,
-  getQuartile,
-  getStandardDeviation,
-  getMean,
-} from "../utils";
-import { getAuctionData } from "./wowapi";
 import Auction from "../entity/Auction";
-import Data from "./data";
 import ConnectedRealm from "../entity/ConnectedRealm";
 import Region from "../region";
+import {
+  getMean,
+  getQuartile,
+  getStandardDeviation,
+  getTotalCount,
+  MergedValue,
+} from "../utils";
+import Data from "./data";
+import { getAuctionData } from "./wowapi";
 
 type LastUpdateInfo = {
   lastAttempt: Date;
