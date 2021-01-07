@@ -1,5 +1,5 @@
 # CraftingDatabase
-[![Build Status](https://travis-ci.org/johvik/CraftingDatabase.svg?branch=master)](https://travis-ci.org/johvik/CraftingDatabase)
+[![Build Status](https://www.travis-ci.com/johvik/CraftingDatabase.svg?branch=master)](https://www.travis-ci.com/johvik/CraftingDatabase)
 
 ## Installation
 ```sh
