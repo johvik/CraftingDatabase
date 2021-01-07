@@ -47,7 +47,7 @@ export default class Auctions {
   ) {
     const repository = getRepository(Auction);
     const auctions: Auction[] = [];
-    for (const [id, values] of data) {
+    data.forEach((values, id) => {
       values.sort((a, b) => a.value - b.value);
       const lowestPrice = values[0].value;
       const totalCount = getTotalCount(values);
@@ -90,7 +90,7 @@ export default class Auctions {
         thirdQuartile: quartile.third,
       });
       auctions.push(auction);
-    }
+    });
     await repository.save(auctions, {
       chunk: Math.max(1, Math.ceil(auctions.length / 1000)),
     });
@@ -117,7 +117,7 @@ export default class Auctions {
     ) {
       // Merge items with the same id
       const map = new Map<number, MergedValue[]>();
-      for (const i of data.auctions) {
+      data.auctions.forEach((i) => {
         let unitPrice = 0;
         if ("buyout" in i) {
           unitPrice = i.buyout / i.quantity;
@@ -135,7 +135,7 @@ export default class Auctions {
             map.set(i.item.id, [mergedValue]);
           }
         }
-      }
+      });
       await Auctions.storeAuctionData(
         connectedRealm.id,
         lastModifiedOrNow,
