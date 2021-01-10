@@ -21,6 +21,7 @@ import {
 import AccessToken from "./service/accessToken";
 import Auctions from "./service/auctions";
 import Data from "./service/data";
+import Realms from "./service/realms";
 
 async function load() {
   await createConnection({
@@ -35,15 +36,14 @@ async function load() {
     logging: false,
   });
   const accessToken = new AccessToken(Region.EU);
-  console.info("Loading data", new Date());
   const data = new Data();
-  console.info("Loading auctions", new Date());
   const auctions = new Auctions();
+  const realms = new Realms();
 
   // Wait for the initial token
   await accessToken.schedule();
 
-  return { accessToken, data, auctions };
+  return { accessToken, data, auctions, realms };
 }
 
 (async () => {
@@ -71,8 +71,20 @@ async function load() {
       }
     }
   );
-  app.get("/api/auctions/lastUpdate", async (_, res) =>
+  app.get("/api/auctions/lastUpdate", (_, res) =>
     res.type("json").send(service.auctions.lastUpdate())
+  );
+  app.get(
+    "/api/connectedRealms/:generatedConnectedRealmId(\\d+)",
+    (req, res) => {
+      const connectedRealms = service.realms.get(
+        parseInt(req.params.generatedConnectedRealmId, 10)
+      );
+      if (connectedRealms !== undefined) {
+        return res.type("json").send(connectedRealms);
+      }
+      return res.sendStatus(404);
+    }
   );
   app.use(express.static(path.join(__dirname, "..", "static")));
 
@@ -95,12 +107,14 @@ async function load() {
   );
 
   console.info("Starting initial update", new Date());
+  await service.realms.update(service.accessToken.get());
   await service.data.update(service.accessToken.get());
   await Auctions.deleteOld();
   await service.auctions.updateAll(service.accessToken.get());
 
   console.info("Starting jobs", new Date());
   new CronJob("00 30 02 * * *", async () => {
+    await service.realms.update(service.accessToken.get());
     await Auctions.deleteOld();
     await service.data.update(service.accessToken.get());
   }).start();

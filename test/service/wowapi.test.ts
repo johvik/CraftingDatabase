@@ -1,5 +1,9 @@
 import Region from "../../src/region";
-import { getAccessToken, getItem } from "../../src/service/wowapi";
+import {
+  getAccessToken,
+  getConnectedRealms,
+  getItem,
+} from "../../src/service/wowapi";
 
 let accessToken = "";
 
@@ -10,6 +14,21 @@ beforeAll(async () => {
 describe("getAccessToken", () => {
   it("should get EU", () => {
     expect(accessToken.length).toEqual(34);
+  });
+});
+
+describe("getConnectedRealms", () => {
+  it("should get EU 1096", async () => {
+    const realms = await getConnectedRealms(Region.EU, 1096, accessToken);
+    expect(realms).toEqual([
+      "Scarshield Legion",
+      "Earthen Ring",
+      "Defias Brotherhood",
+      "The Venture Co",
+      "Ravenholdt",
+      "Darkmoon Faire",
+      "Sporeggar",
+    ]);
   });
 });
 

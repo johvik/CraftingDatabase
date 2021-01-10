@@ -74,6 +74,25 @@ export async function getAuctionData(
   return { lastModified: res.lastModified, auctions: data.auctions };
 }
 
+const ConnectedRealms = t.type({
+  realms: t.array(
+    t.type({
+      name: t.string,
+    })
+  ),
+});
+
+export async function getConnectedRealms(
+  region: Region,
+  connectedRealmId: number,
+  accessToken: string
+) {
+  const url = `https://${region}.api.blizzard.com/data/wow/connected-realm/${connectedRealmId}?namespace=dynamic-${region}&locale=en_GB&access_token=${accessToken}`;
+  const res = await fetchWithTimeout(url, 5000);
+  const connectedRealm = decodeOrThrow(ConnectedRealms, JSON.parse(res.text));
+  return connectedRealm.realms.map((realm) => realm.name);
+}
+
 const Asset = t.type({
   key: t.string,
   value: t.string,
