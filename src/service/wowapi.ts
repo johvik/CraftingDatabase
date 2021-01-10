@@ -13,6 +13,7 @@ export class Quotas {
 
 const TToken = t.type({
   access_token: t.string,
+  expires_in: t.number,
 });
 
 export async function getAccessToken(region: Region) {
@@ -31,7 +32,7 @@ export async function getAccessToken(region: Region) {
     body: formData,
   });
 
-  return decodeOrThrow(TToken, JSON.parse(res.text)).access_token;
+  return decodeOrThrow(TToken, JSON.parse(res.text));
 }
 
 const AuctionItem = t.intersection([

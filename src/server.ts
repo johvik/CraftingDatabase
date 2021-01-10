@@ -18,9 +18,9 @@ import {
   DB_USERNAME,
   SERVER_PORT,
 } from "./secrets";
+import AccessToken from "./service/accessToken";
 import Auctions from "./service/auctions";
 import Data from "./service/data";
-import { getAccessToken } from "./service/wowapi";
 
 async function load() {
   await createConnection({
@@ -34,11 +34,16 @@ async function load() {
     synchronize: true,
     logging: false,
   });
+  const accessToken = new AccessToken(Region.EU);
   console.info("Loading data", new Date());
   const data = new Data();
   console.info("Loading auctions", new Date());
   const auctions = new Auctions();
-  return { data, auctions };
+
+  // Wait for the initial token
+  await accessToken.schedule();
+
+  return { accessToken, data, auctions };
 }
 
 (async () => {
@@ -46,19 +51,19 @@ async function load() {
     console.error("unhandledRejection", error);
     process.exit(1);
   });
-  const data = await load();
+  const service = await load();
 
   const app = express();
   app.use(compression());
 
-  app.get("/api/data", (_, res) => res.type("json").send(data.data.json()));
+  app.get("/api/data", (_, res) => res.type("json").send(service.data.json()));
   app.get(
     "/api/auctions/:generatedConnectedRealmId(\\d+)",
     async (req, res) => {
       try {
-        const auctions = await data.auctions.json(
+        const auctions = await service.auctions.json(
           parseInt(req.params.generatedConnectedRealmId, 10),
-          data.data
+          service.data
         );
         return res.type("json").send(auctions);
       } catch (_) {
@@ -67,7 +72,7 @@ async function load() {
     }
   );
   app.get("/api/auctions/lastUpdate", async (_, res) =>
-    res.type("json").send(data.auctions.lastUpdate())
+    res.type("json").send(service.auctions.lastUpdate())
   );
   app.use(express.static(path.join(__dirname, "..", "static")));
 
@@ -90,19 +95,17 @@ async function load() {
   );
 
   console.info("Starting initial update", new Date());
-  // TODO Update access token periodically
-  const accessToken = await getAccessToken(Region.EU);
-  await data.data.update(accessToken);
+  await service.data.update(service.accessToken.get());
   await Auctions.deleteOld();
-  await data.auctions.updateAll(accessToken);
+  await service.auctions.updateAll(service.accessToken.get());
 
   console.info("Starting jobs", new Date());
   new CronJob("00 30 02 * * *", async () => {
     await Auctions.deleteOld();
-    await data.data.update(accessToken);
+    await service.data.update(service.accessToken.get());
   }).start();
   new CronJob("00 */5 * * * *", async () => {
-    await data.auctions.updateAll(accessToken);
+    await service.auctions.updateAll(service.accessToken.get());
   }).start();
   console.info("Jobs started", new Date());
 })().catch((error) => {

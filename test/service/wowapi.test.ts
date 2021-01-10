@@ -4,7 +4,7 @@ import { getAccessToken, getItem } from "../../src/service/wowapi";
 let accessToken = "";
 
 beforeAll(async () => {
-  accessToken = await getAccessToken(Region.EU);
+  accessToken = (await getAccessToken(Region.EU)).access_token;
 });
 
 describe("getAccessToken", () => {
