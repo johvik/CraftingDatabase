@@ -20,14 +20,14 @@ services:
       - db
     environment:
       - SERVER_PORT=3000
-      - WOW_CLIENT_ID=${WOW_CLIENT_ID}
-      - WOW_CLIENT_SECRET=${WOW_CLIENT_SECRET}
+      - WOW_CLIENT_ID
+      - WOW_CLIENT_SECRET
       - DB_HOST=db
       - DB_PORT=3306
       - DB_USERNAME=cdb
-      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_PASSWORD
       - DB_DATABASE=cdb
-      - CONNECTED_REALMS=${CONNECTED_REALMS}
+      - CONNECTED_REALMS
     healthcheck:
       test: ["CMD", "curl", "-fk", "https://localhost:3000/api/auctions/lastUpdate"]
       start_period: 30s
